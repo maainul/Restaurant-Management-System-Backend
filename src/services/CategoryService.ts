@@ -59,7 +59,7 @@ class CategoryService implements ICategoryService {
         return toCategoryResponse(category)
     }
 
-    async updateCategory(id: string, data: Partial<UpdateCategoryRequestDto>): Promise<CategoryResponseDto | null> {
+    async updateCategory(id: string, data: Partial<UpdateCategoryRequestDto>): Promise<CategoryResponseDto> {
         console.log("CategoryService: updateCategory called");
 
         // validate the ID

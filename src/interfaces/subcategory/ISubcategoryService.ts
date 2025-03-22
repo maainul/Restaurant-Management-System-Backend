@@ -6,6 +6,6 @@ export interface ISubcategoryService {
     createSubcategory(createSubcategoryDto: CreateSubcategoryRequestDto): Promise<SubcategoryResponseDto>;
     getSubcategories(): Promise<SubcategoryResponseDto[]>;
     getSubcategoryById(subcategoryId: string): Promise<SubcategoryResponseDto | null>;
-    updateSubcategory(subcategoryId: string, data: UpdateSubcategoryRequestDto): Promise<SubcategoryResponseDto | null>;
+    updateSubcategory(subcategoryId: string, data: UpdateSubcategoryRequestDto): Promise<SubcategoryResponseDto>;
     deleteSubcategory(subcategoryId: string): Promise<boolean>;
 }

@@ -66,21 +66,31 @@ class SubcategoryService implements ISubcategoryService {
         return toSubcategoryWithCategoryResponse(subcategory)
     }
 
-    async updateSubcategory(subcategoryId: string, data: UpdateSubcategoryRequestDto): Promise<SubcategoryResponseDto | null> {
+    async updateSubcategory(subcategoryId: string, data: UpdateSubcategoryRequestDto): Promise<SubcategoryResponseDto> {
+        // Log the start of the subcategory service creation process
         console.log("SubCategoryService: updateSubcategory called");
+
+        // validate the ID
         validateObjectId(subcategoryId)
-        validateSubCategoryData(data)
+
+        // validate the update data (only if provided)
         if (data.name) {
             const subCategoryExists: ISubcategory | null = await this.checkSubCategoryExistsByName(data.name)
             if (subCategoryExists) {
                 throw new ConflictError("Sub category already exists")
             }
         }
-        const subcategory: ISubcategory | null = await this.subcategoryRepository.update(subcategoryId, toSubcategory(data as UpdateSubcategoryRequestDto))
+        // Convert the Dto to a Partial ISubcategory Object
+        const updatedData = toSubcategory(data)
+
+        // Perform the update
+        const subcategory: ISubcategory | null = await this.subcategoryRepository.update(subcategoryId, updatedData)
         if (!subcategory) {
             throw new NotFoundError("Subcategory not found")
         }
-        return subcategory ? toSubcategoryResponse(subcategory) : null
+
+        // Return the updated subcategory
+        return toSubcategoryResponse(subcategory)
     }
 
     async deleteSubcategory(subcategoryId: string): Promise<boolean> {

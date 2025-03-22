@@ -20,21 +20,47 @@ const subCategoryService = new SubCategoryService(subCategoryRepository, categor
 class SubCategoryController {
 
     createSubCategory = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+
+        // Log the start of the subcategory creation process
         console.log("SubCategoryController: createSubCategory called")
+
+        // Extract subcategory data from the request body
         const subCategoryData: CreateSubcategoryRequestDto = req.body
+
+        // Log the received form data for debugging purpose
         console.log("SubCategoryController: form data : ", subCategoryData)
+
+        // Set the default status for the new subcategory
+        subCategoryData.status = 1 // Assuming 1 represents an "active" status
+
+        // Call the service to create the subcategory
         const newSubCategory = await subCategoryService.createSubcategory(subCategoryData)
+
+        // Send a success response with newly created subcategory
         sendResponse(res, 201, "SubCategory Created Successfully", newSubCategory)
     })
 
     updateSubCategory = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+        // Log the start of the subcategory creation process
         console.log("SubCategoryController: updateSubCategory called")
+
+        // Validate the request params to ensure the id is provided
         validateParmas(req.params, ["id"])
+
+        // Extract the subcategory id from the request parameters
         const id: string = req.params.id
+
+        // Extract the subcateogry update data from the request body
         const subCategoryData: UpdateSubcategoryRequestDto = req.body
+
+        // Log the received form data for debugging purpose
         console.log("SubCategoryController: form data : ", subCategoryData)
-        const newSubCategory = await subCategoryService.updateSubcategory(id, subCategoryData)
-        sendResponse(res, 201, "SubCategory updated Successfully", newSubCategory)
+
+        // Call the service to update the subcategory with the provided ID and data
+        const updatedSubCategory = await subCategoryService.updateSubcategory(id, subCategoryData)
+
+        // Send a success response with the updated subcategory
+        sendResponse(res, 201, "SubCategory updated Successfully", updatedSubCategory)
     })
 
     getAllSubCategory = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
