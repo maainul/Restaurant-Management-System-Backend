@@ -61,18 +61,29 @@ class CategoryService implements ICategoryService {
 
     async updateCategory(id: string, data: Partial<UpdateCategoryRequestDto>): Promise<CategoryResponseDto | null> {
         console.log("CategoryService: updateCategory called");
+
+        // validate the ID
         validateObjectId(id)
-        validateCategoryData(data)
+
+        // validate the update data (only if provided)
         if (data.name) {
             const categoryExists: ICategory | null = await this.checkCategoryExistsByName(data.name)
+
             if (categoryExists) {
                 throw new ConflictError("Category already Exists")
             }
         }
-        const category: ICategory | null = await this.categoryRepository.update(id, toCategory(data as CreateCategoryRequestDto))
+
+        //Convert the DTO to a partial ICateogry Object
+        const updatedData = toCategory(data)
+
+        // Perform the update 
+        const category: ICategory | null = await this.categoryRepository.update(id, updatedData)
         if (!category) {
             throw new NotFoundError("Category Not Found")
         }
+
+        // Return the updated category
         return toCategoryResponse(category)
     }
 

@@ -1,16 +1,29 @@
 import ICategory from "../../interfaces/category/ICategory";
 import { CreateCategoryRequestDto } from "../../dto/category/CreateCategoryRequest.dto";
 import { CategoryResponseDto } from "../../dto/category/CategoryResponse.dto";
+import { UpdateCategoryRequestDto } from "../../dto/category/UpdateCategoryRequest.dto";
 
 
 // Convert CreateCategoryRequest DTO to Model
-export const toCategory = (data: CreateCategoryRequestDto): Partial<ICategory> => {
-    return {
-        name: data.name,
-        description: data.description,
-        status:data.status
-    };
+export const toCategory = (data: CreateCategoryRequestDto | UpdateCategoryRequestDto): Partial<ICategory> => {
+
+    const category: Partial<ICategory> = {}
+
+    // Only include fields that are present in the input
+    if (data.name !== undefined) {
+        category.name = data.name;
+    }
+
+    if (data.description !== undefined) {
+        category.description = data.description;
+    }
+
+    if (data.status !== undefined) {
+        category.status = data.status;
+    }
+    return category
 };
+
 
 // Convert Model to CategoryResponse DTO
 export const toCategoryResponse = (category: ICategory): CategoryResponseDto => {
