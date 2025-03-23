@@ -20,7 +20,7 @@ class OrderController {
     createOrder = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
         console.log("OrderController: createOrder called")
         const OrderData: CreateOrderRequestDto = req.body
-        console.log("BlogController: form data : ", OrderData)
+        console.log("OrderController: form data : ", OrderData)
         const newOrder = await orderService.createOrder(OrderData)
         sendResponse(res, 201, "Order Created Successfully", newOrder)
     })
@@ -29,9 +29,9 @@ class OrderController {
         console.log("OrderController: updateOrder called")
         validateParmas(req.params, ["id"])
         const id: string = req.params.id
-        if (!validateObjectId(id, res)) return
+     
         const OrderData: UpdateOrderStatusRequestDto = req.body
-        console.log("BlogController: form data : ", OrderData)
+        console.log("OrderController: form data : ", OrderData)
         const newOrder = await orderService.updateOrderStatus(id, OrderData)
         sendResponse(res, 201, "Order updated Successfully", newOrder)
     })

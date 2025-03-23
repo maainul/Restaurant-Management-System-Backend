@@ -6,8 +6,16 @@ interface IMenuItem {
     subcategoryId?: Types.ObjectId;
     name: string;
     description?: string;
-    price: number;
+    ingredients: string[];
+    price: number | Record<string, number>;
+    comboDetails?: {
+        includedItems: string[],
+        drinkOptions: string[],
+        upgradeOptions: string[],
+        comboPrice: number
+    }
     available: boolean;
+    combo: boolean;
     createdAt: Date;
     updatedAt: Date;
 }

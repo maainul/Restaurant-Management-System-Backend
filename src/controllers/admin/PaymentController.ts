@@ -18,7 +18,7 @@ class PaymentController {
     createPayment = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
         console.log("PaymentController: createPayment called")
         const PaymentData: CreatePaymentRequestDto = req.body
-        console.log("BlogController: form data : ", PaymentData)
+        console.log("PaymentController: form data : ", PaymentData)
         const newPayment = await paymentService.createPayment(PaymentData)
         sendResponse(res, 201, "Payment Created Successfully", newPayment)
     })
@@ -27,9 +27,9 @@ class PaymentController {
         console.log("PaymentController: updatePayment called")
         validateParmas(req.params, ["id"])
         const id: string = req.params.id
-        if (!validateObjectId(id, res)) return
+
         const PaymentData: CreatePaymentRequestDto = req.body
-        console.log("BlogController: form data : ", PaymentData)
+        console.log("PaymentController: form data : ", PaymentData)
         const newPayment = await paymentService.updatePayment(id, PaymentData)
         sendResponse(res, 201, "Payment updated Successfully", newPayment)
     })
@@ -44,7 +44,7 @@ class PaymentController {
         console.log("PaymentController: getPaymentById called")
         validateParmas(req.params, ["id"])
         const id: string = req.params.id
-        if (!validateObjectId(id, res)) return
+       
         const Payment = await paymentService.getPaymentById(id)
         sendResponse(res, 201, "Payment Fetch Successfully", Payment)
     })
@@ -53,7 +53,7 @@ class PaymentController {
         console.log("PaymentController: deletePaymentId called")
         validateParmas(req.params, ["id"])
         const id: string = req.params.id
-        if (!validateObjectId(id, res)) return
+        
         await paymentService.deletePayment(id)
         sendResponse(res, 201, "Payment deleted Successfully")
     })

@@ -9,7 +9,6 @@ import MenuService from "../../services/MenuService";
 import asyncHandler from "../../utils/asyncHandler"
 import sendResponse from "../../utils/sendResponse";
 import validateParmas from "../../utils/validateParams";
-import validateObjectId from "../../utils/isValidObjectId";
 
 const menuRepository = new MenuRepository()
 const menuService = new MenuService(menuRepository)
@@ -17,22 +16,40 @@ const menuService = new MenuService(menuRepository)
 class MenuController {
 
     createMenu = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+        // Log the start of the menu creation process
         console.log("MenuController: createMenu called")
+
+        // Get the created data from the request body
         const menuData: CreateMenuItemRequestDto = req.body
-        console.log("BlogController: form data : ", menuData)
+
+        // Log the menu data
+        console.log("MenuController: form data : ", menuData)
+        
         const newMenu = await menuService.createMenuItem(menuData)
         sendResponse(res, 201, "Menu Created Successfully", newMenu)
     })
 
     updateMenu = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+        // Log the start of the menu updation process
         console.log("MenuController: updateMenu called")
+
+        // validate the request parameters
         validateParmas(req.params, ["id"])
+
+        // Extract the menu id from the request parameters
         const id: string = req.params.id
-        if (!validateObjectId(id, res)) return
+
+        // Extract the menu update data from the request body
         const menuData: UpdateMenuItemRequestDto = req.body
-        console.log("BlogController: form data : ", menuData)
-        const newMenu = await menuService.updateMenuItem(id, menuData)
-        sendResponse(res, 201, "Menu updated Successfully", newMenu)
+
+        // Log the received form data for debugging purpose
+        console.log("MenuController: form data : ", menuData)
+
+        // Call the service to update the menu with the provided ID and data
+        const updatedMenu = await menuService.updateMenuItem(id, menuData)
+
+        // Send a success response with the updated menu
+        sendResponse(res, 201, "Menu updated Successfully", updatedMenu)
     })
 
     getAllMenu = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
@@ -45,16 +62,14 @@ class MenuController {
         console.log("MenuController: getMenuById called")
         validateParmas(req.params, ["id"])
         const id: string = req.params.id
-        if (!validateObjectId(id, res)) return
         const menu = await menuService.getMenuItemById(id)
         sendResponse(res, 201, "Menu Fetch Successfully", menu)
     })
 
-    deleteMenuId = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    deleteMenu = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
         console.log("MenuController: deleteMenuId called")
         validateParmas(req.params, ["id"])
         const id: string = req.params.id
-        if (!validateObjectId(id, res)) return
         await menuService.deleteMenuItem(id)
         sendResponse(res, 201, "Menu deleted Successfully")
     })

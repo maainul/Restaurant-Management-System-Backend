@@ -23,7 +23,7 @@ class CategoryController {
     createCategory = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
         console.log("CategoryController: createCategory called")
         const categoryData: CreateSubcategoryRequestDto = req.body
-        console.log("BlogController: form data : ", categoryData)
+        console.log("CategoryController: form data : ", categoryData)
         categoryData.status = 1
         const newCategory = await categoryService.createCategory(categoryData)
         sendResponse(res, 201, "Category Created Successfully", newCategory)
@@ -38,7 +38,7 @@ class CategoryController {
 
         // Get the updated data from the request body
         const categoryData: Partial<UpdateSubcategoryRequestDto> = req.body
-        console.log("BlogController: form data : ", categoryData)
+        console.log("CategoryController: form data : ", categoryData)
 
         // Call the service to update the category
         const updatedCategory = await categoryService.updateCategory(id, categoryData)

@@ -1,23 +1,29 @@
 import IMenuItem from "../interfaces/menu/IMenuItem";
-import { IMenuRepository } from "../interfaces/menu/IMenuRepository";
+import IMenuRepository from "../interfaces/menu/IMenuRepository";
+
 import MenuItem from "../models/menu/MenuItem.model";
 
 
 class MenuRepository implements IMenuRepository {
     async create(menuItem: IMenuItem): Promise<IMenuItem> {
-        console.log("MenuRepository:create called")
+        console.log("MenuRepository:create called",)
         return await MenuItem.create(menuItem)
     }
 
     async findById(id: string): Promise<IMenuItem | null> {
         console.log("MenuRepository:findById called")
-        const result = await MenuItem.findById({ id })
+        const result = await MenuItem.findById(id)
         return result
     }
 
     async findBySubcategory(subcategoryId: string): Promise<IMenuItem[]> {
         console.log("MenuRepository:findBySubcategory called")
         const result = await MenuItem.find({ subcategoryId: subcategoryId })
+        return result
+    }
+
+    async findByName(name: string): Promise<IMenuItem | null> {
+        const result = await MenuItem.findOne({ name: name })
         return result
     }
 

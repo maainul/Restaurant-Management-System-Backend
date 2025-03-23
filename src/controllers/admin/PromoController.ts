@@ -18,7 +18,7 @@ class PromoController {
     createPromo = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
         console.log("PromoController: createPromo called")
         const PromoData: CreatePromoRequestDto = req.body
-        console.log("BlogController: form data : ", PromoData)
+        console.log("PromoController: form data : ", PromoData)
         const newPromo = await promoService.createPromo(PromoData)
         sendResponse(res, 201, "Promo Created Successfully", newPromo)
     })
@@ -27,9 +27,8 @@ class PromoController {
         console.log("PromoController: updatePromo called")
         validateParmas(req.params, ["id"])
         const id: string = req.params.id
-        if (!validateObjectId(id, res)) return
         const PromoData: CreatePromoRequestDto = req.body
-        console.log("BlogController: form data : ", PromoData)
+        console.log("PromoController: form data : ", PromoData)
         const newPromo = await promoService.updatePromo(id, PromoData)
         sendResponse(res, 201, "Promo updated Successfully", newPromo)
     })
@@ -44,7 +43,6 @@ class PromoController {
         console.log("PromoController: getPromoById called")
         validateParmas(req.params, ["id"])
         const id: string = req.params.id
-        if (!validateObjectId(id, res)) return
         const Promo = await promoService.getPromoById(id)
         sendResponse(res, 201, "Promo Fetch Successfully", Promo)
     })
@@ -53,7 +51,6 @@ class PromoController {
         console.log("PromoController: deletePromoId called")
         validateParmas(req.params, ["id"])
         const id: string = req.params.id
-        if (!validateObjectId(id, res)) return
         await promoService.deletePromo(id)
         sendResponse(res, 201, "Promo deleted Successfully")
     })

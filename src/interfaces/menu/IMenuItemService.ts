@@ -6,7 +6,7 @@ import UpdateMenuItemRequestDto from '../../dto/menu/UpdateMenuItemRequest.dto';
     createMenuItem(createMenuItemDto: CreateMenuItemRequestDto): Promise<MenuItemResponseDto>;
     getMenuItems(): Promise<MenuItemResponseDto[]>;
     getMenuItemById(menuItemId: string): Promise<MenuItemResponseDto | null>;
-    updateMenuItem(menuItemId: string, updateMenuItemDto: UpdateMenuItemRequestDto): Promise<MenuItemResponseDto | null>;
+    updateMenuItem(menuItemId: string, updateMenuItemDto: UpdateMenuItemRequestDto): Promise<MenuItemResponseDto>;
     deleteMenuItem(menuItemId: string): Promise<boolean>;
 }
 export default IMenuItemService

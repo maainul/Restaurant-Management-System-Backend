@@ -4,6 +4,7 @@ interface IMenuRepository {
     create(menuItem: Partial<IMenuItem>): Promise<IMenuItem>;
     findById(id: string): Promise<IMenuItem | null>;
     findBySubcategory(subcategoryId: string): Promise<IMenuItem[]>;
+    findByName(name: string): Promise<IMenuItem | null>;
     findAll(): Promise<IMenuItem[]>;
     update(id: string, menuItem: Partial<IMenuItem>): Promise<IMenuItem | null>;
     delete(id: string): Promise<boolean>;
