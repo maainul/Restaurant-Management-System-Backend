@@ -65,20 +65,44 @@ class CategoryService implements ICategoryService {
         // validate the ID
         validateObjectId(id)
 
-        // validate the update data (only if provided)
-        if (data.name) {
-            const categoryExists: ICategory | null = await this.checkCategoryExistsByName(data.name)
+        // Retrieve the current category item from the database
+        const currentData = await this.categoryRepository.findById(id)
 
-            if (categoryExists) {
-                throw new ConflictError("Category already Exists")
-            }
+        // if the current doesn't exists then throw a NotFoundError
+        if (!currentData) {
+            throw new NotFoundError("Category Not Found")
         }
 
-        //Convert the DTO to a partial ICateogry Object
-        const updatedData = toCategory(data)
+        let hasChanges = false
 
-        // Perform the update 
-        const category: ICategory | null = await this.categoryRepository.update(id, updatedData)
+        // Check if the name has changed and if it's unique
+        if (data.name && data.name !== currentData.name) {
+            const categoryExists: ICategory | null = await this.checkCategoryExistsByName(data.name)
+            if (categoryExists && categoryExists._id?.toString() !== id) {
+                throw new ConflictError("Catgory with the same name already exists")
+            }
+            currentData.name = data.name
+            hasChanges = true
+        }
+
+        if (data.description !== currentData.description) {
+            currentData.description = data.description
+            hasChanges = true
+        }
+
+        if (data.status !== undefined && JSON.stringify(data.status) !== JSON.stringify(currentData.status)) {
+            currentData.status = data.status
+            hasChanges = true
+        }
+
+        // If no changes are detected, return the current category item without updating
+        if (!hasChanges) {
+            console.log("CategoryService: No Changes detected,skipping update")
+            return toCategoryResponse(currentData)
+        }
+
+        // If changes were made, proceed with updating the category item
+        const category: ICategory | null = await this.categoryRepository.update(id, currentData)
         if (!category) {
             throw new NotFoundError("Category Not Found")
         }

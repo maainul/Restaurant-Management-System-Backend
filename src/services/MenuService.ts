@@ -83,6 +83,7 @@ class MenuService implements IMenuItemService {
             if (menuExists && menuExists._id?.toString() !== menuItemId) {
                 throw new ConflictError("Menu with the same name already exists")
             }
+            currentMenuItem.name = updateMenuItemDto.name; // Update name
             hasChanges = true
         }
 
