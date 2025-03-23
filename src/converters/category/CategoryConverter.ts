@@ -1,11 +1,10 @@
 import ICategory from "../../interfaces/category/ICategory";
 import { CreateCategoryRequestDto } from "../../dto/category/CreateCategoryRequest.dto";
 import { CategoryResponseDto } from "../../dto/category/CategoryResponse.dto";
-import { UpdateCategoryRequestDto } from "../../dto/category/UpdateCategoryRequest.dto";
 
 
 // Convert CreateCategoryRequest DTO to Model
-export const toCategory = (data: CreateCategoryRequestDto | UpdateCategoryRequestDto): Partial<ICategory> => {
+export const toCategory = (data: CreateCategoryRequestDto): Partial<ICategory> => {
 
     const category: Partial<ICategory> = {}
 

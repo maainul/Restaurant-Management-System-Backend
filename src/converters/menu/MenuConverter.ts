@@ -19,20 +19,6 @@ export const toMenuItem = (data: CreateMenuItemRequestDto): Partial<IMenuItem> =
     };
 };
 
-// Convert UpdateMenuItemRequest DTO to Model
-export const toUpdatedMenuItem = (data: UpdateMenuItemRequestDto): Partial<IMenuItem> => {
-    return {
-        categoryId: new Types.ObjectId(data.categoryId),
-        subcategoryId: new Types.ObjectId(data.subcategoryId),
-        name: data.name,
-        description: data.description,
-        ingredients: data.ingredients,
-        combo: data.combo,
-        price: data.price,
-        available: data.available,
-        ...(data.combo && data.comboDetails) ? { comboDetails: data.comboDetails } : {}
-    };
-};
 
 // Convert Model to MenuItemResponse DTO
 export const toMenuItemResponse = (menuItem: IMenuItem): MenuItemResponseDto => {

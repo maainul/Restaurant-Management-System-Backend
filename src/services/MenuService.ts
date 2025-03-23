@@ -6,7 +6,7 @@ import UpdateMenuItemRequestDto from "../dto/menu/UpdateMenuItemRequest.dto";
 import IMenuRepository from "../interfaces/menu/IMenuRepository";
 
 import IMenuItem from "../interfaces/menu/IMenuItem";
-import { toMenuItem, toMenuItemResponse, toUpdatedMenuItem } from "../converters/menu/MenuConverter";
+import { toMenuItem, toMenuItemResponse } from "../converters/menu/MenuConverter";
 import validateMenuData from "../utils/validateMenuData";
 import ConflictError from "../errors/ConflictError";
 import NotFoundError from "../errors/NotFoundError";
