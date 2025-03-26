@@ -3,6 +3,7 @@ import isAdmin from '../middlewares/adminAuthMiddleware';
 import CategoryController from "../controllers/admin/CategoryController";
 import SubCategoryController from "../controllers/admin/SubcategoryController";
 import MenuController from "../controllers/admin/MenuController";
+import CustomizationController from "../controllers/admin/CustomizationController";
 
 
 
@@ -11,6 +12,7 @@ const router = Router()
 const categoryController = new CategoryController()
 const subCategoryController = new SubCategoryController()
 const menuController = new MenuController()
+const customizationController = new CustomizationController()
 
 /***************************** Category ********************************/
 router.get("/categories/", isAdmin, categoryController.getAllCategory);
@@ -42,5 +44,17 @@ router.post("/menus/", isAdmin, menuController.createMenu);
 router.put("/menus/:id", isAdmin, menuController.updateMenu);
 
 router.delete("/menus/:id", isAdmin, menuController.deleteMenu);
+
+
+/***************************** Customization ********************************/
+router.get("/customizations/", isAdmin, customizationController.getAllCustomization);
+
+router.get("/customizations/:id", isAdmin, customizationController.getCustomizationById);
+
+router.post("/customizations/", isAdmin, customizationController.createCustomization);
+
+router.put("/customizations/:id", isAdmin, customizationController.updateCustomization);
+
+router.delete("/customizations/:id", isAdmin, customizationController.deleteCustomization);
 
 export default router;
