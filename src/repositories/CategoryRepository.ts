@@ -28,7 +28,7 @@ class CategoryRepository implements ICategoryRepository {
     }
     async update(id: string, category: Partial<ICategory>): Promise<ICategory | null> {
         console.log("CategoryRepository:update called")
-        return Category.findByIdAndUpdate(id, category, { new: true })
+        return await Category.findByIdAndUpdate(id, category, { new: true })
     }
 
     async delete(id: string): Promise<boolean> {

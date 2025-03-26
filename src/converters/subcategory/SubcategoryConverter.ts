@@ -1,17 +1,27 @@
-import ISubcategory from "../../interfaces/subcategory/ISubcategory";
-import CreateSubcategoryRequestDto from "../../dto/subcategory/CreateSubcategoryRequest.dto";
-import SubcategoryResponseDto from "../../dto/subcategory/SubcategoryResponse.dto";
-import UpdateSubcategoryRequestDto from "../../dto/subcategory/UpdateSubcategoryRequest.dto";
 import { Types } from "mongoose";
+import ISubcategory from "../../interfaces/subcategory/ISubcategory";
+import SubcategoryResponseDto from "../../dto/subcategory/SubcategoryResponse.dto";
+import CreateSubcategoryRequestDto from "../../dto/subcategory/CreateSubcategoryRequest.dto";
 import ISubcategoryWithCategory from "../../interfaces/subcategory/ISubcategoryWithCategory";
 
 
 // Convert CreateCategoryRequest DTO to Model
-export const toSubcategory = (data: CreateSubcategoryRequestDto | UpdateSubcategoryRequestDto): Partial<ISubcategory> => {
+export const toSubcategory = (data: CreateSubcategoryRequestDto): Partial<ISubcategory> => {
     const subcategoryData: Partial<ISubcategory> = {}
-    if (data.name) { subcategoryData.name = data.name }
-    if (data.categoryId) { subcategoryData.categoryId = new Types.ObjectId(data.categoryId) }
-    if (data.description) { subcategoryData.description = data.description }
+
+    if (data.name !== undefined) {
+        subcategoryData.name = data.name
+    }
+    if (data.categoryId !== undefined) {
+        subcategoryData.categoryId = new Types.ObjectId(data.categoryId)
+    }
+    if (data.description !== undefined) {
+        subcategoryData.description = data.description
+    }
+    if (data.status !== undefined) {
+        subcategoryData.status = data.status
+    }
+
     return subcategoryData
 };
 

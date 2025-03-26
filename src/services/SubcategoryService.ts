@@ -12,7 +12,7 @@ import ISubcategoryWithCategory from "../interfaces/subcategory/ISubcategoryWith
 import ICategory from "../interfaces/category/ICategory";
 import ConflictError from './../errors/ConflictError';
 import NotFoundError from './../errors/NotFoundError';
-
+import { Types } from "mongoose";
 
 class SubcategoryService implements ISubcategoryService {
 
@@ -24,31 +24,52 @@ class SubcategoryService implements ISubcategoryService {
         this.categoryRepository = categoryRepository
     }
 
+    /**
+     * Checks if a subcategory with the given name already exists
+     * @param name - Name of the subcategory to check
+     * @returns Promise resolving to the existing subcategory or null
+     */
     private async checkSubCategoryExistsByName(name: string): Promise<ISubcategory | null> {
         return await this.subcategoryRepository.findByName(name)
     }
 
-
-
+    /**
+     * Creates a new subcategory after validating the input data and checking for duplicates
+     * @param data - DTO containing subcategory creation data
+     * @returns Promise resolving to the created subcategory response
+     * @throws ConflictError if subcategory with same name exists
+     * @throws NotFoundError if parent category doesn't exist
+     */
     async createSubcategory(data: CreateSubcategoryRequestDto): Promise<SubcategoryResponseDto> {
         console.log("SubCategoryService: createSubcategory called");
+
+        // Validate input data structure
         validateSubCategoryData(data)
+
+        // Check for existing subcategory with same name
         const subCategoryExists: ISubcategory | null = await this.checkSubCategoryExistsByName(data.name)
         if (subCategoryExists) {
             throw new ConflictError("Sub-Category already exists")
         }
+
+        // Validate and check parent category exists
         validateObjectId(data.categoryId)
         const categoryExists: ICategory | null = await this.categoryRepository.findById(data.categoryId)
         if (!categoryExists) {
             throw new NotFoundError("Category does not exists")
         }
 
+        // Convert DTO to repository model and create
         const subcategoryData: Partial<ISubcategory> = toSubcategory(data)
-
         const subCategory: ISubcategory = await this.subcategoryRepository.create(subcategoryData)
+
         return toSubcategoryResponse(subCategory)
     }
 
+    /**
+     * Retrieves all subcategories with their associated category data
+     * @returns Promise resolving to array of subcategory responses
+     */
     async getSubcategories(): Promise<SubcategoryResponseDto[]> {
         console.log("SubCategoryService: getSubcategories called");
         const subcategories: ISubcategoryWithCategory[] = await this.subcategoryRepository.findAll()
@@ -56,6 +77,12 @@ class SubcategoryService implements ISubcategoryService {
         return subcategories.map(toSubcategoryWithCategoryResponse)
     }
 
+    /**
+     * Retrieves a specific subcategory by ID
+     * @param subcategoryId - ID of the subcategory to retrieve
+     * @returns Promise resolving to the subcategory response
+     * @throws NotFoundError if subcategory doesn't exist
+     */
     async getSubcategoryById(subcategoryId: string): Promise<SubcategoryResponseDto | null> {
         console.log("SubCategoryService: getSubcategoryById called");
         validateObjectId(subcategoryId)
@@ -66,38 +93,81 @@ class SubcategoryService implements ISubcategoryService {
         return toSubcategoryWithCategoryResponse(subcategory)
     }
 
-    async updateSubcategory(subcategoryId: string, data: UpdateSubcategoryRequestDto): Promise<SubcategoryResponseDto> {
-        // Log the start of the subcategory service creation process
+    /**
+     * Updates an existing subcategory with partial data
+     * @param subcategoryId - ID of the subcategory to update
+     * @param data - Partial DTO containing fields to update
+     * @returns Promise resolving to the updated subcategory response
+     * @throws NotFoundError if subcategory doesn't exist
+     * @throws ConflictError if name change conflicts with existing subcategory
+     */
+    async updateSubcategory(subcategoryId: string, data: Partial<UpdateSubcategoryRequestDto>): Promise<SubcategoryResponseDto> {
         console.log("SubCategoryService: updateSubcategory called");
 
-        // validate the ID
+        // Validate ID format
         validateObjectId(subcategoryId)
 
-        // validate the update data (only if provided)
-        if (data.name) {
-            const subCategoryExists: ISubcategory | null = await this.checkSubCategoryExistsByName(data.name)
-            if (subCategoryExists) {
-                throw new ConflictError("Sub category already exists")
-            }
+        // Retrieve current subcategory data
+        const currentData: ISubcategoryWithCategory | null = await this.subcategoryRepository.findById(subcategoryId)
+        if (!currentData) {
+            throw new NotFoundError("Subcategory Not Found.")
         }
-        // Convert the Dto to a Partial ISubcategory Object
-        const updatedData = toSubcategory(data)
 
-        // Perform the update
-        const subcategory: ISubcategory | null = await this.subcategoryRepository.update(subcategoryId, updatedData)
-        if (!subcategory) {
+        let hasChanges = false
+
+        // Handle name update with uniqueness check
+        if (data.name && data.name !== currentData.name) {
+            const subcategoryExists: ISubcategory | null = await this.checkSubCategoryExistsByName(data.name)
+            if (subcategoryExists && subcategoryExists._id?.toString() !== subcategoryId) {
+                throw new ConflictError("Subcategory with the same name already exists")
+            }
+            currentData.name = data.name
+            hasChanges = true
+        }
+
+        // Handle description update
+        if (data.description !== undefined && data.description !== currentData.description) {
+            currentData.description = data.description
+            hasChanges = true
+        }
+
+        // Handle category ID update with proper ObjectId conversion
+        if (data.categoryId !== undefined &&
+            data.categoryId.toString() !== currentData.categoryId.toString()) {
+            currentData.categoryId = new Types.ObjectId(data.categoryId)
+            hasChanges = true
+        }
+
+        // Handle status update
+        if (data.status !== undefined && data.status !== currentData.status) {
+            currentData.status = data.status
+            hasChanges = true
+        }
+
+        // Skip update if no changes detected
+        if (!hasChanges) {
+            console.log("SubcategoryService: No Changes detected, skipping update")
+            return toSubcategoryResponse(currentData)
+        }
+
+        // Persist changes to repository
+        const subcategoryUpdateData: ISubcategory | null = await this.subcategoryRepository.update(subcategoryId, currentData)
+        if (!subcategoryUpdateData) {
             throw new NotFoundError("Subcategory not found")
         }
 
-        // Return the updated subcategory
-        return toSubcategoryResponse(subcategory)
+        return toSubcategoryResponse(subcategoryUpdateData)
     }
 
+    /**
+     * Deletes a subcategory by ID
+     * @param subcategoryId - ID of the subcategory to delete
+     * @returns Promise resolving to boolean indicating success
+     */
     async deleteSubcategory(subcategoryId: string): Promise<boolean> {
         console.log("SubCategoryService: deleteSubcategory called");
         return await this.subcategoryRepository.delete(subcategoryId)
     }
-
 }
 
 export default SubcategoryService

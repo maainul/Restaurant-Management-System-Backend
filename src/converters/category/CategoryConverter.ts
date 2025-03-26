@@ -20,6 +20,7 @@ export const toCategory = (data: CreateCategoryRequestDto): Partial<ICategory> =
     if (data.status !== undefined) {
         category.status = data.status;
     }
+    
     return category
 };
 

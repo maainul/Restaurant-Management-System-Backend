@@ -19,11 +19,11 @@ const validateSubCategoryData = (subcategoryDTO: CreateSubcategoryRequestDto | U
         errors.push({ field: "categoryId", message: "Category is Required" })
     } else if (typeof subcategoryDTO.categoryId !== "string") {
         errors.push({ field: "categoryId", message: "Category Must be string Required" })
-
-        if (errors.length > 0) {
-            throw new ValidationError(errors, 400);
-        }
     };
+
+    if (errors.length > 0) {
+        throw new ValidationError(errors, 400);
+    }
 }
 
 export default validateSubCategoryData
