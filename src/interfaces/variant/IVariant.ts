@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
 
 interface IVariant {
-    _id: Types.ObjectId;
+    _id?: Types.ObjectId;
     name: string;
     options: string[];
     createdAt: Date;

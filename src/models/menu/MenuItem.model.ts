@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, Types, model } from "mongoose";
 import IMenuItem from "../../interfaces/menu/IMenuItem";
 
 const MenuItemSchema = new Schema<IMenuItem>({
@@ -18,7 +18,9 @@ const MenuItemSchema = new Schema<IMenuItem>({
         drinkOptions: [{ type: String }],
         upgradeOptions: [{ type: String }],
         comboPrice: { type: Number }
-    }
+    },
+    customizations: [{ type: String }],
+    variants: [{ type: String }],
 }, { timestamps: true });
 
 // Ensure comboDetails is only set when combo is true

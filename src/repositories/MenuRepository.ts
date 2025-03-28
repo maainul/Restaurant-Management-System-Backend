@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import IMenuItem from "../interfaces/menu/IMenuItem";
 import IMenuRepository from "../interfaces/menu/IMenuRepository";
 
@@ -7,13 +8,90 @@ import MenuItem from "../models/menu/MenuItem.model";
 class MenuRepository implements IMenuRepository {
     async create(menuItem: IMenuItem): Promise<IMenuItem> {
         console.log("MenuRepository:create called",)
-        return await MenuItem.create(menuItem)
+        const result = await MenuItem.create(menuItem)
+        return result
     }
 
     async findById(id: string): Promise<IMenuItem | null> {
         console.log("MenuRepository:findById called")
-        const result = await MenuItem.findById(id)
-        return result
+        const result = await MenuItem.aggregate([
+            {
+                $match: { _id: new Types.ObjectId(id) }
+            },
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "categoryId",
+                    foreignField: "_id",
+                    as: "categoryDetails"
+                }
+            },
+            { $unwind: { path: "$categoryDetails", preserveNullAndEmptyArrays: true } },
+
+            {
+                $lookup: {
+                    from: "subcategories",
+                    localField: "subcategoryId",
+                    foreignField: "_id",
+                    as: "subcategoryDetails"
+                }
+            },
+            { $unwind: { path: "$subcategoryDetails", preserveNullAndEmptyArrays: true } },
+
+            // Lookup for customizations (array of IDs)
+            {
+                $lookup: {
+                    from: "customizations",
+                    localField: "customizations",
+                    foreignField: "_id",
+                    as: "customizationDetails"
+                }
+            },
+
+            // Lookup for variants (array of IDs)
+            {
+                $lookup: {
+                    from: "variants",
+                    localField: "variants",
+                    foreignField: "_id",
+                    as: "variantDetails"
+                }
+            },
+
+            {
+                $project: {
+                    "name": 1,
+                    "price": 1,
+                    "combo": 1,
+                    "comboDetails": 1,
+                    "ingredients": 1,
+                    "available": 1,
+                    "description": 1,
+
+                    // Category info
+                    "categoryId": "$categoryDetails._id",
+                    "categoryName": "$categoryDetails.name",
+
+                    // Subcategory info
+                    "subcategoryId": "$subcategoryDetails._id",
+                    "subcategoryName": "$subcategoryDetails.name",
+
+                    // Customizations (full objects)
+                    "customizations": "$customizationDetails",
+
+                    // Variants (full objects)
+                    "variants": "$variantDetails",
+
+                    // Timestamps
+                    "createdAt": 1,
+                    "updatedAt": 1
+                }
+            }
+
+        ])
+
+        return result.length > 0 ? result[0] : null
+
     }
 
     async findBySubcategory(subcategoryId: string): Promise<IMenuItem[]> {
@@ -29,7 +107,82 @@ class MenuRepository implements IMenuRepository {
 
     async findAll(): Promise<IMenuItem[]> {
         console.log("MenuRepository:findAll called")
-        return await MenuItem.find()
+        const result = await MenuItem.aggregate([
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "categoryId",
+                    foreignField: "_id",
+                    as: "categoryDetails"
+                }
+            },
+            { $unwind: { path: "$categoryDetails", preserveNullAndEmptyArrays: true } },
+
+            {
+                $lookup: {
+                    from: "subcategories",
+                    localField: "subcategoryId",
+                    foreignField: "_id",
+                    as: "subcategoryDetails"
+                }
+            },
+            { $unwind: { path: "$subcategoryDetails", preserveNullAndEmptyArrays: true } },
+
+            // Lookup for customizations (array of IDs)
+            {
+                $lookup: {
+                    from: "customizations",
+                    localField: "customizations",
+                    foreignField: "_id",
+                    as: "customizationDetails"
+                }
+            },
+
+            // Lookup for variants (array of IDs)
+            {
+                $lookup: {
+                    from: "variants",
+                    localField: "variants",
+                    foreignField: "_id",
+                    as: "variantDetails"
+                }
+            },
+
+            {
+                $project: {
+                    "name": 1,
+                    "price": 1,
+                    "combo": 1,
+                    "comboDetails": 1,
+                    "ingredients": 1,
+                    "available": 1,
+                    "description": 1,
+
+                    // Category info
+                    "categoryId": "$categoryDetails._id",
+                    "categoryName": "$categoryDetails.name",
+
+                    // Subcategory info
+                    "subcategoryId": "$subcategoryDetails._id",
+                    "subcategoryName": "$subcategoryDetails.name",
+
+                    // Customizations (full objects)
+                    "customizations": "$customizationDetails",
+
+                    // Variants (full objects)
+                    "variants": "$variantDetails",
+
+                    // Timestamps
+                    "createdAt": 1,
+                    "updatedAt": 1
+                }
+            }
+
+        ])
+        console.log("*************************************")
+        console.log(result)
+        console.log("*************************************")
+        return result
     }
 
     async update(id: string, menuItem: Partial<IMenuItem>): Promise<IMenuItem | null> {

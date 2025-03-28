@@ -13,23 +13,23 @@ export const toVariant = (data: CreateVariantRequestDto): Partial<IVariant> => {
         customization.name = data.name;
     }
 
-   
+
 
     if (data.options !== undefined) {
         customization.options = data.options;
     }
-    
+
     return customization
 };
 
 
 // Convert Model to VariantResponse DTO
-export const toVariantResponse = (customization: IVariant): VariantResponseDto => {
+export const toVariantResponse = (variant: IVariant): VariantResponseDto => {
     return {
-        id: customization._id.toString(),
-        name: customization.name,
-        options: customization.options,
-        createdAt: customization.createdAt,
-        updatedAt: customization.updatedAt
+        id: variant._id?.toString() || "",
+        name: variant.name,
+        options: variant.options,
+        createdAt: variant.createdAt,
+        updatedAt: variant.updatedAt
     };
 };

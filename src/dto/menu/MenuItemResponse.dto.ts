@@ -1,3 +1,5 @@
+import ICustomization from '../../interfaces/customization/ICustomization';
+import IVariant from './../../interfaces/variant/IVariant';
 interface MenuItemResponseDto {
     id: string;
     name: string;
@@ -14,6 +16,8 @@ interface MenuItemResponseDto {
         upgradeOptions: string[];
         comboPrice: number;
     };
+    variants: Array<{ id: string; data?: IVariant }>
+    customizations: Array<{ id: string; data?: ICustomization }>;
     createdAt: Date;
     updatedAt: Date;
 }

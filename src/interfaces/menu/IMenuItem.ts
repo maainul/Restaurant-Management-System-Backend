@@ -13,7 +13,9 @@ interface IMenuItem {
         drinkOptions: string[],
         upgradeOptions: string[],
         comboPrice: number
-    }
+    };
+    customizations: Types.ObjectId[]; // References to Customization documents
+    variants: Types.ObjectId[]; // References to Variant documents
     available: boolean;
     combo: boolean;
     createdAt: Date;

@@ -9,9 +9,18 @@ import MenuService from "../../services/MenuService";
 import asyncHandler from "../../utils/asyncHandler"
 import sendResponse from "../../utils/sendResponse";
 import validateParmas from "../../utils/validateParams";
+import CustomizationRepository from '../../repositories/CustomizationRepository';
+import VariantRepository from '../../repositories/VariantRepository';
+import CategoryRepository from '../../repositories/CategoryRepository';
+import SubcategoryRepository from '../../repositories/SubcategoryRepository';
 
 const menuRepository = new MenuRepository()
-const menuService = new MenuService(menuRepository)
+const customizationRepository = new CustomizationRepository()
+const varaintRepository = new VariantRepository()
+const categoryRepository = new CategoryRepository()
+const subcategoryRepository = new SubcategoryRepository()
+
+const menuService = new MenuService(menuRepository, customizationRepository, varaintRepository, categoryRepository, subcategoryRepository)
 
 class MenuController {
 
@@ -24,7 +33,7 @@ class MenuController {
 
         // Log the menu data
         console.log("MenuController: form data : ", menuData)
-        
+
         const newMenu = await menuService.createMenuItem(menuData)
         sendResponse(res, 201, "Menu Created Successfully", newMenu)
     })
