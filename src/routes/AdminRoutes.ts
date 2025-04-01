@@ -5,6 +5,7 @@ import SubCategoryController from "../controllers/admin/SubcategoryController";
 import MenuController from "../controllers/admin/MenuController";
 import CustomizationController from "../controllers/admin/CustomizationController";
 import VariantController from "../controllers/admin/VariantController";
+import upload from './../middlewares/imageUpload';
 
 
 
@@ -41,7 +42,7 @@ router.delete("/sub-categories/:id", isAdmin, subCategoryController.deleteSubCat
 router.get("/menus/", isAdmin, menuController.getAllMenu);
 router.get("/menus/:id", isAdmin, menuController.getMenuById);
 
-router.post("/menus/", isAdmin, menuController.createMenu);
+router.post("/menus/", isAdmin, upload.single("imageURL"), menuController.createMenu);
 
 router.put("/menus/:id", isAdmin, menuController.updateMenu);
 

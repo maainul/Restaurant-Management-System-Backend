@@ -23,9 +23,9 @@ connectDB();
 // Middleware
 app.use(cors());
 app.use(express.json());
-// app.use("/uploads", express.static("uploads")); // Serve uploaded images
-// User Routes
+app.use("/uploads", express.static("uploads")); // Serve uploaded images
 
+// User Routes
 app.use("/api/auth", userRoutes);
 app.use("/api", authenticate, adminRoutes);
 

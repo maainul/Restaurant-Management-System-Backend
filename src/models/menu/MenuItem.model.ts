@@ -21,6 +21,7 @@ const MenuItemSchema = new Schema<IMenuItem>({
     },
     customizations: [{ type: String }],
     variants: [{ type: String }],
+    imageURL: { type: String },
 }, { timestamps: true });
 
 // Ensure comboDetails is only set when combo is true

@@ -34,8 +34,15 @@ class MenuController {
         // Log the menu data
         console.log("MenuController: form data : ", menuData)
 
-        const newMenu = await menuService.createMenuItem(menuData)
-        sendResponse(res, 201, "Menu Created Successfully", newMenu)
+        const imageURL = req.file ? `/src/uploads/${req.file.filename}` : undefined
+
+        if (imageURL) {
+            const newMenu = await menuService.createMenuItem({ ...menuData, imageURL })
+            sendResponse(res, 201, "Menu Created Successfully", newMenu)
+        } else {
+            const newMenu = await menuService.createMenuItem(menuData)
+            sendResponse(res, 201, "Menu Created Successfully", newMenu)
+        }
     })
 
     updateMenu = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {

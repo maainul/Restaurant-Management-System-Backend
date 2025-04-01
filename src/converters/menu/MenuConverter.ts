@@ -1,7 +1,6 @@
 import { Types } from "mongoose";
 import CreateMenuItemRequestDto from "../../dto/menu/CreateMenuItemRequest.dto";
 import MenuItemResponseDto from "../../dto/menu/MenuItemResponse.dto";
-import UpdateMenuItemRequestDto from "../../dto/menu/UpdateMenuItemRequest.dto";
 import IMenuItem from "../../interfaces/menu/IMenuItem";
 import IVariant from "../../interfaces/variant/IVariant";
 import ICustomization from "../../interfaces/customization/ICustomization";
@@ -19,6 +18,7 @@ export const toMenuItem = (data: CreateMenuItemRequestDto): Partial<IMenuItem> =
         variants: data.variants.map(id => new Types.ObjectId(id)),
         customizations: data.customizations.map(id => new Types.ObjectId(id)),
         combo: data.combo,
+        imageURL: data.imageURL,
         ...(data.combo && data.comboDetails) ? { comboDetails: data.comboDetails } : {}
     };
 };
@@ -64,6 +64,6 @@ export const toMenuItemResponse = (menuItem: IMenuItem): MenuItemResponseDto => 
         variants: menuItem.variants.map(mapVariant),
         customizations: menuItem.customizations?.map(mapCustomization),
         createdAt: menuItem.createdAt,
-        updatedAt: menuItem.updatedAt
+        updatedAt: menuItem.updatedAt,
     };
 };

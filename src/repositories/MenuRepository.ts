@@ -82,6 +82,8 @@ class MenuRepository implements IMenuRepository {
                     // Variants (full objects)
                     "variants": "$variantDetails",
 
+                    "imageURL": 1,
+
                     // Timestamps
                     "createdAt": 1,
                     "updatedAt": 1
@@ -172,6 +174,8 @@ class MenuRepository implements IMenuRepository {
                     // Variants (full objects)
                     "variants": "$variantDetails",
 
+                    "imageURL": 1,
+
                     // Timestamps
                     "createdAt": 1,
                     "updatedAt": 1
@@ -179,9 +183,7 @@ class MenuRepository implements IMenuRepository {
             }
 
         ])
-        console.log("*************************************")
-        console.log(result)
-        console.log("*************************************")
+
         return result
     }
 

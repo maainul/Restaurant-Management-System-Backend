@@ -17,6 +17,7 @@ interface IMenuItem {
     customizations: Types.ObjectId[]; // References to Customization documents
     variants: Types.ObjectId[]; // References to Variant documents
     available: boolean;
+    imageURL: string;
     combo: boolean;
     createdAt: Date;
     updatedAt: Date;

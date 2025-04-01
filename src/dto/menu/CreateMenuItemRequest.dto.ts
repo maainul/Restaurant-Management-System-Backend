@@ -14,6 +14,7 @@ interface CreateMenuItemRequestDto {
         upgradeOptions: string[];
         comboPrice: number;
     };
+    imageURL: string,
     variants: string[];
     customizations: string[];
     createdAt: Date;
