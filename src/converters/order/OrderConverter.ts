@@ -6,7 +6,7 @@ import UpdateOrderStatusRequestDto from "../../dto/order/UpdateOrderStatusReques
 import IOrder from "../../interfaces/order/IOrder";
 
 // Convert CreateOrderRequest DTO to IOrder model instance
-export const toOrder = (createOrderDto: CreateOrderRequestDto): IOrder => {
+export const toOrder = (createOrderDto: CreateOrderRequestDto): Partial<IOrder> => {
     return {
         userId: new Types.ObjectId(createOrderDto.userId), // Assuming userId is passed as string
         tableId: createOrderDto.tableId ? new Types.ObjectId(createOrderDto.tableId) : undefined,
@@ -14,6 +14,7 @@ export const toOrder = (createOrderDto: CreateOrderRequestDto): IOrder => {
             menuItemId: new Types.ObjectId(item.menuItemId), // Ensure the menuItemId is an ObjectId
             quantity: item.quantity,
             specialInstructions: item.specialInstructions || "",
+            price: item.price || 0
         })),
         status: createOrderDto.status || "pending", // Default to "pending" if not provided
         totalAmount: createOrderDto.totalAmount,
@@ -34,6 +35,7 @@ export const toOrderResponse = (order: IOrder): OrderResponseDto => {
             menuItemId: item.menuItemId.toString(),
             quantity: item.quantity,
             specialInstructions: item.specialInstructions || "",
+            price: item.price || 0
         })),
         status: order.status,
         totalAmount: order.totalAmount,

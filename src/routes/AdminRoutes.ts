@@ -6,6 +6,7 @@ import MenuController from "../controllers/admin/MenuController";
 import CustomizationController from "../controllers/admin/CustomizationController";
 import VariantController from "../controllers/admin/VariantController";
 import upload from './../middlewares/imageUpload';
+import OrderController from "../controllers/admin/OrderController";
 
 
 
@@ -14,6 +15,7 @@ const router = Router()
 const categoryController = new CategoryController()
 const subCategoryController = new SubCategoryController()
 const menuController = new MenuController()
+const orderController = new OrderController()
 const customizationController = new CustomizationController()
 const variantController = new VariantController()
 
@@ -70,5 +72,16 @@ router.post("/variants/", isAdmin, variantController.createVariant);
 router.put("/variants/:id", isAdmin, variantController.updateVariant);
 
 router.delete("/variants/:id", isAdmin, variantController.deleteVariant);
+
+
+/***************************** Order ********************************/
+router.get("/orders/", isAdmin, orderController.getAllOrder);
+router.get("/orders/:id", isAdmin, orderController.getOrderById);
+router.post("/orders/", isAdmin, orderController.createOrder);
+router.put("/orders/:id", isAdmin, orderController.updateOrder);
+router.delete("/orders/:id", isAdmin, orderController.deleteOrder);
+
+
+
 
 export default router;

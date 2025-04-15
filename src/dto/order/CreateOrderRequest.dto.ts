@@ -4,6 +4,7 @@ interface CreateOrderRequestDto {
         menuItemId: string;
         quantity: number;
         specialInstructions?: string;
+        price: number;
     }[];
     tableId?: string;
     totalAmount: number;

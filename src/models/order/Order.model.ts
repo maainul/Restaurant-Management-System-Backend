@@ -9,6 +9,7 @@ const OrderSchema = new Schema<IOrder>({
             menuItemId: { type: Schema.Types.ObjectId, ref: "MenuItem", required: true }, // Reference to MenuItem model
             quantity: { type: Number, required: true },
             specialInstructions: { type: String },
+            price: { type: Number }
         },
     ],
     status: {
