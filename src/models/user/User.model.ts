@@ -6,7 +6,7 @@ const UserSchema = new Schema<IUser>({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     refreshToken: { type: String },
-    role: { type: String, enum: ["admin", "customer", "waiter", "kitchenStuff"], default: "customer" },
+    role: { type: String, enum: ["admin", "customer", "waiter", "kitchenStaff"], default: "customer" },
 }, { timestamps: true });
 
 const User = model<IUser>("User", UserSchema);
