@@ -7,7 +7,7 @@ import express from "express";
 import connectDB from "./config/db";
 
 import adminRoutes from "./routes/AdminRoutes"
-import userRoutes from "./routes/UserRoutes"
+import userRoutes from "./routes/AuthRoutes"
 
 import errorMiddleware from "./middlewares/errorMiddleware";
 import authenticate from './middlewares/authenticate';

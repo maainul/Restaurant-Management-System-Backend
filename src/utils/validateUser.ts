@@ -1,6 +1,6 @@
 import CreateUserRequestDto from "../dto/user/CreateUserRequest.dto";
 import { ValidationError } from "../errors/errors";
-import IUser from "../interfaces/user/IUser";
+
 
 const validateRegistrationData = (userData: CreateUserRequestDto): void => {
     const fieldErrors: { field: string; message: string }[] = [];
