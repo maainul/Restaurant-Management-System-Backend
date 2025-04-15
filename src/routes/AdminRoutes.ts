@@ -7,6 +7,7 @@ import CustomizationController from "../controllers/admin/CustomizationControlle
 import VariantController from "../controllers/admin/VariantController";
 import upload from './../middlewares/imageUpload';
 import OrderController from "../controllers/admin/OrderController";
+import TableController from "../controllers/admin/TableController";
 
 
 
@@ -16,6 +17,7 @@ const categoryController = new CategoryController()
 const subCategoryController = new SubCategoryController()
 const menuController = new MenuController()
 const orderController = new OrderController()
+const tableController = new TableController()
 const customizationController = new CustomizationController()
 const variantController = new VariantController()
 
@@ -80,6 +82,15 @@ router.get("/orders/:id", isAdmin, orderController.getOrderById);
 router.post("/orders/", isAdmin, orderController.createOrder);
 router.put("/orders/:id", isAdmin, orderController.updateOrder);
 router.delete("/orders/:id", isAdmin, orderController.deleteOrder);
+
+
+/***************************** Order ********************************/
+router.get("/tables/", isAdmin, tableController.getAllTable);
+router.get("/tables/:id", isAdmin, tableController.getTableById);
+router.post("/tables/", isAdmin, tableController.createTable);
+router.put("/tables/:id", isAdmin, tableController.updateTable);
+router.post("/tables/release/:id", isAdmin, tableController.releaseTable);
+
 
 
 

@@ -2,7 +2,7 @@ import { Types } from "mongoose";
 
 interface ITable {
     _id?: Types.ObjectId;
-    tableNumber: number;
+    tableNumber: string;
     capacity: number;
     isReserved: boolean;
     status: number

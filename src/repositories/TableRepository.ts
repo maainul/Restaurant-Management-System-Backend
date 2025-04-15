@@ -1,5 +1,6 @@
 import ITable from "../interfaces/table/ITable";
-import { ITableRepository } from "../interfaces/table/ITableRepository";
+import ITableRepository from "../interfaces/table/ITableRepository";
+
 import Table from './../models/table/Table.model';
 
 class TableRepository implements ITableRepository {

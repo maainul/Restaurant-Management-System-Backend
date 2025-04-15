@@ -1,8 +1,8 @@
-interface CreateTableRequestDto {
+interface UpdateTableRequestDto {
     number: string;
     capacity: number;
     isReserved?: boolean;
     status?: number
 }
 
-export default CreateTableRequestDto
+export default UpdateTableRequestDto
