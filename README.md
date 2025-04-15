@@ -233,6 +233,3 @@ class AuthController {
 
 - **Access tokens** are used for short-term authentication and authorization.
 - **Refresh tokens** are used for long-term session management.
-- Always follow security best practices to protect tokens and user data.
-
-By implementing access and refresh tokens, you can build a secure and scalable authentication system for your application.

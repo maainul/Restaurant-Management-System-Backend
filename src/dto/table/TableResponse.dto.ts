@@ -1,6 +1,6 @@
 interface TableResponseDto {
     id?: string;
-    tableNumber: number;
+    tableNumber: string;
     status: number;
     capacity: number,
     isReserved: boolean,

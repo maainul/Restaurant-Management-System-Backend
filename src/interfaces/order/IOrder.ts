@@ -8,6 +8,7 @@ interface IOrder {
         menuItemId: Types.ObjectId; // MenuItem reference
         quantity: number;
         specialInstructions?: string;
+        price: number
     }[];
     status: string;
     totalAmount: number;
