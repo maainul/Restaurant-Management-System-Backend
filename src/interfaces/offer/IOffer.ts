@@ -6,6 +6,7 @@ interface IOffer {
     description?: string;
     price: number;
     discount: number;
+    discountPercentage: number;
     startDate: Date;
     endDate: Date;
     available: boolean;
