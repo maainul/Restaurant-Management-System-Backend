@@ -5,6 +5,7 @@ interface IPromo {
     code: string;
     description: string;
     discountPercentage: number;
+    discountAmount:Number;
     validFrom: Date;
     validTill: Date;
     createdAt: Date;

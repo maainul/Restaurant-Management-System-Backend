@@ -9,12 +9,14 @@ import CreateUserRequestDto from "../dto/user/CreateUserRequest.dto";
 import UserResponseDto from "../dto/user/UserResponse.dto";
 
 import { ValidationError } from "../errors/errors";
-import { toUser, toUserDTO } from "../converters/user/UserConverter";
+import { toCustomer, toUser, toUserDTO } from "../converters/user/UserConverter";
 import NotFoundError from "../errors/NotFoundError";
 import UpdateUserRequestDto from "../dto/user/UpdateUserRequest.dto";
 import validateObjectId from "../utils/isValidObjectId";
 import IUser from "../interfaces/user/IUser";
 import ConflictError from "../errors/ConflictError";
+import CreateCustomerRequestDto from "../dto/user/CreateCustomerRequest.dto";
+
 
 class UserService implements IUserService {
   private userRepository: IUserRepository;
@@ -22,6 +24,16 @@ class UserService implements IUserService {
   constructor(userRepository: IUserRepository) {
     this.userRepository = userRepository;
   }
+
+  /**
+   * Checks if a user with the given mobile Number already exists
+   * @param mobileNumber - mobile Number of the user to check
+   * @returns Promise resolving to the existing user or null
+   */
+  private async checkUserByMobileNumber(mobileNumber: string): Promise<IUser | null> {
+    return await this.userRepository.findByMobileNumber(mobileNumber);
+  }
+
 
   /**
    * Checks if a user with the given name already exists
@@ -32,6 +44,7 @@ class UserService implements IUserService {
     return await this.userRepository.findByEmail(email);
   }
 
+
   /**
    * Checks if a user with the given name already exists
    * @param name - Name of the user to check
@@ -41,11 +54,7 @@ class UserService implements IUserService {
     return await this.userRepository.findByUserName(userName);
   }
 
-  async login(loginRequestDto: LoginRequestDto): Promise<{
-    user: UserResponseDto;
-    accessToken: string;
-    refreshToken: string | null;
-  }> {
+  async login(loginRequestDto: LoginRequestDto): Promise<{user: UserResponseDto;accessToken: string;refreshToken: string | null;}> {
     const user = await this.userRepository.findByEmail(loginRequestDto.email);
     if (!user) {
       throw new ValidationError(
@@ -159,7 +168,7 @@ class UserService implements IUserService {
    * @throws NotFoundError if user doesn't exist
    * @throws ConflictError if name change conflicts with existing user
    */
-  async updateUser(id: string,data: UpdateUserRequestDto): Promise<UserResponseDto | null> {
+  async updateUser(id: string, data: UpdateUserRequestDto): Promise<UserResponseDto | null> {
     console.log("UserService: updateUser called.");
 
     // validate ID format
@@ -197,13 +206,13 @@ class UserService implements IUserService {
       hasChanges = true;
     }
 
-    if(!hasChanges){
-       console.log("UserService: No Changes detected, skipping update");
-       return toUserDTO(currentData);
+    if (!hasChanges) {
+      console.log("UserService: No Changes detected, skipping update");
+      return toUserDTO(currentData);
     }
 
-    const user:IUser | null = await this.userRepository.update(id, currentData);
-    if(!user){
+    const user: IUser | null = await this.userRepository.update(id, currentData);
+    if (!user) {
       throw new NotFoundError("User Not Found")
     }
 
@@ -213,10 +222,19 @@ class UserService implements IUserService {
   async deleteUser(id: string): Promise<boolean> {
     console.log("UserService: deleteUser called.");
     const user = await this.userRepository.delete(id);
-    if(!user){
+    if (!user) {
       throw new NotFoundError("Something went wrong.Please contact with administrator.")
     }
     return user
+  }
+
+  async getUserByMobileNumber(mobileNUmber: string): Promise<UserResponseDto | null> {
+    console.log("UserService: getUserById called.");
+    const user = await this.userRepository.findByMobileNumber(mobileNUmber);
+    if (!user) {
+      throw new NotFoundError("User Not Found")
+    }
+    return toUserDTO(user);
   }
 
   async refreshAccessToken(refreshToken: string): Promise<string> {
@@ -252,6 +270,31 @@ class UserService implements IUserService {
 
     return accessToken;
   }
+
+  // Create Customer With OTP
+  async createCustomer(data: CreateCustomerRequestDto): Promise<UserResponseDto> {
+    console.log("UserService: createCustomer called.");
+    console.log("UserService: Request Data:", data);
+
+    const existingUser = await this.userRepository.findByMobileNumber(data.mobileNumber);
+    if (existingUser) {
+      throw new ValidationError(
+        [{ field: " mobileNumber", message: "User with this mobile Number already exists" }],
+        403
+      );
+    }
+
+    if (data.password && data.password.trim() !== "") {
+      data.password =
+        data.password.trim() && (await bcrypt.hash(data.password, 10));
+    }
+
+    const user = await this.userRepository.create(toCustomer(data));
+    return toUserDTO(user);
+  }
+
+
+
 }
 
 export default UserService;

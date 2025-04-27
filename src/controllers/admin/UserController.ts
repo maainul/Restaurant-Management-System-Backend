@@ -18,7 +18,7 @@ const userService = new UserService(userRepository)
 class UserController {
    
      updateUser = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-       console.log("AdminUserController: getUserById called.");
+       console.log("UserController: updateUser called.");
 
        // validate the request parameters
        validateParmas(req.params, ["id"]);

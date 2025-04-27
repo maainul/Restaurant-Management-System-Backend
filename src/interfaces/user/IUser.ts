@@ -4,6 +4,15 @@ interface IUser {
   _id: Types.ObjectId;
   username: string;
   email: string;
+  otp:string;
+  otpExpiryTime:Date;
+  mobileNumber: string;
+  isVerified:Boolean;
+
+  isEmailVerified:Boolean;
+  verificationCode:string;
+  verificationExpiryTime:Date;
+  
   password: string;
   role: string;
   refreshToken?: string;

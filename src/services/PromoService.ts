@@ -15,36 +15,23 @@ class PromoService implements IPromoService {
     constructor(promoRepository: IPromoRepository) {
         this.promoRepository = promoRepository;
     }
-
-    async createPromo(createPromoDto: CreatePromoRequestDto): Promise<PromoResponseDto> {
-        console.log("PromoService: createPromo called");
-        const promoData: Partial<IPromo> = toPromo(createPromoDto);
-        const promo = await this.promoRepository.create(promoData);
-        return toPromoResponse(promo);
+    createPromo(createPromoDto: CreatePromoRequestDto): Promise<IPromo> {
+        throw new Error("Method not implemented.");
+    }
+    getPromos(): Promise<IPromo[]> {
+        throw new Error("Method not implemented.");
+    }
+    getPromoById(promoId: string): Promise<IPromo | null> {
+        throw new Error("Method not implemented.");
+    }
+    updatePromo(promoId: string, updatePromoDto: UpdatePromoRequestDto): Promise<IPromo | null> {
+        throw new Error("Method not implemented.");
+    }
+    deletePromo(promoId: string): Promise<boolean> {
+        throw new Error("Method not implemented.");
     }
 
-    async getPromos(): Promise<PromoResponseDto[]> {
-        console.log("PromoService: getPromos called");
-        const promos = await this.promoRepository.findAll();
-        return promos.map(toPromoResponse);
-    }
-
-    async getPromoById(promoId: string): Promise<PromoResponseDto | null> {
-        console.log("PromoService: getPromoById called");
-        const promo = await this.promoRepository.findById(promoId);
-        return promo ? toPromoResponse(promo) : null;
-    }
-
-    async updatePromo(promoId: string, updatePromoDto: UpdatePromoRequestDto): Promise<PromoResponseDto | null> {
-        console.log("PromoService: updatePromo called");
-        const promo = await this.promoRepository.update(promoId, toUpdatedPromo(updatePromoDto));
-        return promo ? toPromoResponse(promo) : null;
-    }
-
-    async deletePromo(promoId: string): Promise<boolean> {
-        console.log("PromoService: deletePromo called");
-        return await this.promoRepository.delete(promoId);
-    }
+  
 }
 
 export default PromoService;

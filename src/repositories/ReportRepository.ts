@@ -1,6 +1,9 @@
 import { IReportRepository } from "../interfaces/report/IReportRepository";
 
 class ReportRepository implements IReportRepository {
+    getDailyReportData(date: string): Promise<any> {
+        throw new Error("Method not implemented.");
+    }
 
     async generateDailyReport(date: string): Promise<any> {
         throw new Error("Method not implemented.");

@@ -1,5 +1,41 @@
+import CreateCustomerRequestDto from "../dto/user/CreateCustomerRequest.dto";
 import CreateUserRequestDto from "../dto/user/CreateUserRequest.dto";
 import { ValidationError } from "../errors/errors";
+
+const validateCustomerData = (userData: CreateCustomerRequestDto): void => {
+    const fieldErrors: { field: string; message: string }[] = [];
+
+
+    // Validate the email field
+    if (!userData.mobileNumber || userData.mobileNumber.trim() === "") {
+        fieldErrors.push({
+            field: "mobileNumber",
+            message: "mobileNumber is required",
+        });
+    } else if (!isValidMobileNumber(userData.mobileNumber)) {
+        fieldErrors.push({
+            field: "mobileNumber",
+            message: "Invalid mobile Number address",
+        });
+    }
+    // Validate the password field
+    if (!userData.password || userData.password.trim() === "") {
+        fieldErrors.push({
+            field: "password",
+            message: "Password is required",
+        });
+    } else if (userData.password.length < 6) {
+        fieldErrors.push({
+            field: "password",
+            message: "Password must be at least 6 characters long",
+        });
+    }
+
+    // If there are validation errors, throw a ValidationError
+    if (fieldErrors.length > 0) {
+        throw new ValidationError(fieldErrors, 400);
+    }
+};
 
 
 const validateRegistrationData = (userData: CreateUserRequestDto): void => {
@@ -91,4 +127,10 @@ const isValidEmail = (email: string): boolean => {
     return emailRegex.test(email);
 };
 
-export default { validateRegistrationData, validateLoginData };
+const isValidMobileNumber = (mobileNumber: string): boolean => {
+    if(mobileNumber.length == 11){
+        return true
+    }
+    return false
+};
+export default { validateRegistrationData, validateLoginData,validateCustomerData };

@@ -1,6 +1,6 @@
-import { CreateOfferRequestDto } from "../../dto/offer/CreateOfferRequest.dto";
-import { OfferResponseDto } from "../../dto/offer/OfferResponse.dto";
-import { UpdateOfferRequestDto } from "../../dto/offer/UpdateOfferRequest.dto";
+import  CreateOfferRequestDto  from "../../dto/offer/CreateOfferRequest.dto";
+import  OfferResponseDto  from "../../dto/offer/OfferResponse.dto";
+import  UpdateOfferRequestDto  from "../../dto/offer/UpdateOfferRequest.dto";
 import IOffer from "../../interfaces/offer/IOffer";
 
 // Convert CreateOfferRequest DTO to Model

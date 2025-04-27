@@ -1,5 +1,3 @@
-import "reflect-metadata";
-
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
@@ -8,6 +6,8 @@ import connectDB from "./config/db";
 
 import adminRoutes from "./routes/AdminRoutes"
 import userRoutes from "./routes/AuthRoutes"
+import otpRoutes from "./routes/OtpRoutes"
+
 
 import errorMiddleware from "./middlewares/errorMiddleware";
 import authenticate from './middlewares/authenticate';
@@ -27,8 +27,8 @@ app.use("/uploads", express.static("uploads")); // Serve uploaded images
 
 // User Routes
 app.use("/api/auth", userRoutes);
+app.use("/api",otpRoutes)
 app.use("/api", authenticate, adminRoutes);
-
 
 
 // Error handling middleware

@@ -3,6 +3,7 @@ import IUserRepository from "../interfaces/user/IUserRepository";
 import User from "./../models/user/User.model";
 
 class UserRepository implements IUserRepository {
+
   async create(user: IUser): Promise<IUser> {
     console.log("UserRepository:create called");
     return await User.create(user);
@@ -16,6 +17,11 @@ class UserRepository implements IUserRepository {
   async findByEmail(email: string): Promise<IUser | null> {
     console.log("UserRepository:findByEmail called");
     return await User.findOne({ email: email });
+  }
+
+  async findByMobileNumber(mobileNumber: string): Promise<IUser | null> {
+    console.log("UserRepository:findByMobileNumber called");
+    return await User.findOne({ mobileNumber: mobileNumber });
   }
 
   async findByUserName(username: string): Promise<IUser | null> {

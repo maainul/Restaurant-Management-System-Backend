@@ -7,9 +7,11 @@ interface IUserService {
     createUser(createUserDto: CreateUserRequestDto): Promise<UserResponseDto>;
     getUsers(): Promise<UserResponseDto[]>;
     getUserById(userId: string): Promise<UserResponseDto | null>;
+    getUserByMobileNumber(mobileNUmber: string): Promise<UserResponseDto | null>;
     updateUser(userId: string, updateUserDto: CreateUserRequestDto): Promise<UserResponseDto | null>;
     deleteUser(userId: string): Promise<boolean>;
     refreshAccessToken(refreshToken: string): Promise<string>;
+
 }
 
 export default IUserService

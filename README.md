@@ -1,235 +1,333 @@
-## **Authentication** and **Authorization** using **Access tokens** and **Refresh tokens**. These tokens are essential for securing your application and managing user sessions.
+# How to RUN in Local : 
 
----
-
-### **What Are Access Tokens and Refresh Tokens?**
-
-#### **1. Access Token**
-- **Purpose**: Used to authenticate and authorize API requests.
-- **Lifetime**: Short-lived (e.g., 15 minutes to 1 hour).
-- **Storage**: Typically stored in memory (e.g., in the client's state or a variable).
-- **Usage**: Sent with every request to access protected resources (e.g., user profile, protected routes).
-- **Security**: If compromised, the damage is limited because the token expires quickly.
-
-#### **2. Refresh Token**
-- **Purpose**: Used to obtain a new access token when the current one expires.
-- **Lifetime**: Long-lived (e.g., 7 days to several months).
-- **Storage**: Securely stored (e.g., in an HTTP-only cookie or a secure storage mechanism).
-- **Usage**: Sent to the server to request a new access token without requiring the user to log in again.
-- **Security**: Must be stored securely because it has a longer lifetime and can be used to generate new access tokens.
-
----
-
-### **Why Use Both Tokens?**
-
-1. **Security**:
-   - Access tokens are short-lived, reducing the risk of misuse if they are compromised.
-   - Refresh tokens are long-lived but stored securely, reducing the need for frequent logins.
-
-2. **User Experience**:
-   - Users don't need to log in repeatedly because the refresh token can generate new access tokens.
-
-3. **Scalability**:
-   - Access tokens can be validated quickly (e.g., using a signature), reducing the load on your database.
-
----
-
-### **How It Works**
-
-1. **Login**:
-   - The user provides their credentials (e.g., email and password).
-   - The server validates the credentials and generates:
-     - An **access token** (short-lived).
-     - A **refresh token** (long-lived).
-   - The server sends both tokens to the client.
-
-2. **Accessing Protected Resources**:
-   - The client includes the **access token** in the `Authorization` header of every request.
-   - The server validates the access token and grants access to the requested resource.
-
-3. **Access Token Expires**:
-   - When the access token expires, the client sends the **refresh token** to the server to request a new access token.
-   - The server validates the refresh token and issues a new access token.
-
-4. **Logout**:
-   - The client deletes the access token and refresh token.
-   - Optionally, the server can invalidate the refresh token (e.g., by maintaining a blacklist).
-
----
-
-### **Implementation Steps**
-
-#### **1. Generate Tokens**
-Use a library like `jsonwebtoken` to generate access and refresh tokens.
-
-##### Install `jsonwebtoken`
+1. Clone Repo :
 ```bash
-npm install jsonwebtoken
+git clone https://github.com/WaveTech-Info-Ltd/table-tech-backend.git
+```
+2. Install Packages :
+```bash
+npm i
+```
+3. Setup DB in Mongodb: Database name : rmsdb
+4. Run Project :
+```bash
+npm run dev
 ```
 
-##### Generate Tokens
-```typescript
-import jwt from "jsonwebtoken";
 
-const ACCESS_TOKEN_SECRET = "your-access-token-secret";
-const REFRESH_TOKEN_SECRET = "your-refresh-token-secret";
+# RUN in Production :
 
-const generateAccessToken = (userId: string): string => {
-    return jwt.sign({ userId }, ACCESS_TOKEN_SECRET, { expiresIn: "15m" });
-};
+1. Build Project
+```bash
+npm run build
+```
 
-const generateRefreshToken = (userId: string): string => {
-    return jwt.sign({ userId }, REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
-};
+2. Run Project
+```bash
+npm start
+```
+# Build With Compose :
+
+## Build Images :
+```bash
+docker-compose up --build
+```
+
+
+# Dockerize
+---
+
+### **Step 1: Keep Your Dockerfile (No Changes)**
+```dockerfile
+FROM node:20.9.0-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies (including devDependencies for building)
+RUN npm install
+
+# Copy all source files
+COPY . .
+
+# Build the application
+RUN npm run build
+
+# Install only production dependencies (clean up devDependencies)
+RUN npm prune --production
+
+EXPOSE 8080
+CMD ["npm", "start"]
 ```
 
 ---
 
-#### **2. Login Endpoint**
-Return both tokens when the user logs in.
+### **Step 2: Build the Docker Image**
+```bash
+docker build -t maainul/table-tech-backend:latest .
+```
+- `-t` → Tags the image with a name (`maainul/table-tech-backend`) and tag (`latest`).
+- `.` → Builds using the current directory (where your `Dockerfile` is).
 
-##### Example Login Controller
-```typescript
-import { Request, Response } from "express";
-import { generateAccessToken, generateRefreshToken } from "../utils/jwt";
-import userService from "../services/UserService";
+---
 
-class AuthController {
-    login = async (req: Request, res: Response) => {
-        const { email, password } = req.body;
+### **Step 3: Test Locally Before Pushing**
+```bash
+docker-compose up -d
+```
+- Verify that your app and MongoDB start correctly.
 
-        // Authenticate user
-        const user = await userService.login(email, password);
-        if (!user) {
-            return res.status(401).json({ message: "Invalid credentials" });
-        }
+---
 
-        // Generate tokens
-        const accessToken = generateAccessToken(user.id);
-        const refreshToken = generateRefreshToken(user.id);
+### **Step 4: Log in to Docker Hub**
+```bash
+docker login
+```
+- Enter your **Docker Hub username** and **password** when prompted.
 
-        // Send tokens to the client
-        res.json({ accessToken, refreshToken });
-    };
-}
+---
 
-export default AuthController;
+### **Step 5: Push the Image to Docker Hub**
+```bash
+docker push maainul/table-tech-backend:latest
+```
+- This uploads your image to Docker Hub under your account (`maainul`).
+
+---
+
+### **Step 6: Share the `docker-compose.yml` with Your Team**
+Your team can now use the image directly from Docker Hub:
+```yaml
+version: '3.8'
+
+services:
+  app:
+    image: maainul/table-tech-backend:latest  # Pulls from Docker Hub
+    ports:
+      - "8080:8080"
+    environment:
+      - MONGO_URL=mongodb://mongo:27017/rmsdb
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:6.0
+    container_name: my-mongo-db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
 ```
 
 ---
 
-#### **3. Protect Routes**
-Use middleware to validate the access token for protected routes.
-
-##### Example Middleware
-```typescript
-import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
-
-const ACCESS_TOKEN_SECRET = "your-access-token-secret";
-
-export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
-    const authHeader = req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1]; // Bearer <token>
-
-    if (!token) {
-        return res.status(401).json({ message: "Access token is required" });
-    }
-
-    jwt.verify(token, ACCESS_TOKEN_SECRET, (err, user) => {
-        if (err) {
-            return res.status(403).json({ message: "Invalid or expired token" });
-        }
-        req.user = user; // Attach user to the request object
-        next();
-    });
-};
+### **Step 7: Your Team Can Now Run It**
+They just need to run:
+```bash
+docker-compose up -d
 ```
-
-##### Protect a Route
-```typescript
-import { authenticateToken } from "../middlewares/authenticateToken";
-
-app.get("/profile", authenticateToken, (req, res) => {
-    res.json({ message: "Protected route", user: req.user });
-});
-```
+- This will:
+  1. Pull `maainul/table-tech-backend:latest` from Docker Hub.
+  2. Start MongoDB.
+  3. Run your Node.js app.
 
 ---
 
-#### **4. Refresh Token Endpoint**
-Allow clients to request a new access token using the refresh token.
+### **Optional Improvements (If Needed)**
+1. **Use Version Tags (Recommended)**  
+   Instead of `latest`, use semantic versioning (e.g., `v1.0.0`):
+   ```bash
+   docker build -t maainul/table-tech-backend:v1.0.0 .
+   docker push maainul/table-tech-backend:v1.0.0
+   ```
+   - Helps avoid breaking changes when `latest` updates.
 
-##### Example Refresh Token Controller
-```typescript
-import { Request, Response } from "express";
-import jwt from "jsonwebtoken";
-import { generateAccessToken } from "../utils/jwt";
+2. **Add a `.dockerignore` File**  
+   Prevents unnecessary files (like `node_modules`) from being copied:
+   ```
+   node_modules
+   .git
+   .env
+   ```
 
-const REFRESH_TOKEN_SECRET = "your-refresh-token-secret";
-
-class AuthController {
-    refreshToken = async (req: Request, res: Response) => {
-        const { refreshToken } = req.body;
-
-        if (!refreshToken) {
-            return res.status(401).json({ message: "Refresh token is required" });
-        }
-
-        jwt.verify(refreshToken, REFRESH_TOKEN_SECRET, (err, user) => {
-            if (err) {
-                return res.status(403).json({ message: "Invalid or expired refresh token" });
-            }
-
-            // Generate a new access token
-            const accessToken = generateAccessToken(user.userId);
-            res.json({ accessToken });
-        });
-    };
-}
-
-export default AuthController;
-```
+3. **Add Health Checks (Optional)**  
+   In `docker-compose.yml`, you can add:
+   ```yaml
+   healthcheck:
+     test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+     interval: 30s
+     timeout: 10s
+     retries: 3
+   ```
 
 ---
 
-#### **5. Logout**
-Invalidate the refresh token (optional) and delete tokens on the client side.
+## Docker Run Without Codebase:
+```bash
+docker pull maainul/table-tech-backend:latest && docker run maainul/table-tech-backend:latest
+docker run maainul/table-tech-backend:latest
+```
+# Build With Compose :
 
-##### Example Logout Controller
-```typescript
-class AuthController {
-    logout = async (req: Request, res: Response) => {
-        // Optionally, invalidate the refresh token (e.g., by maintaining a blacklist)
-        res.json({ message: "Logged out successfully" });
-    };
-}
+## Build Images :
+```bash
+docker-compose up --build
+```
+
+
+# Dockerize
+---
+
+### **Step 1: Keep Your Dockerfile (No Changes)**
+```dockerfile
+FROM node:20.9.0-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies (including devDependencies for building)
+RUN npm install
+
+# Copy all source files
+COPY . .
+
+# Build the application
+RUN npm run build
+
+# Install only production dependencies (clean up devDependencies)
+RUN npm prune --production
+
+EXPOSE 8080
+CMD ["npm", "start"]
 ```
 
 ---
 
-### **Security Best Practices**
+### **Step 2: Build the Docker Image**
+```bash
+# First time:
+docker-compose up -d
 
-1. **Use HTTPS**:
-   - Always use HTTPS to encrypt data in transit.
-
-2. **Secure Storage**:
-   - Store refresh tokens in **HTTP-only cookies** to prevent JavaScript access.
-   - Store access tokens in memory (e.g., in a variable or state).
-
-3. **Token Expiry**:
-   - Use short expiry times for access tokens (e.g., 15 minutes).
-   - Use longer expiry times for refresh tokens (e.g., 7 days).
-
-4. **Token Rotation**:
-   - Rotate refresh tokens on each use to enhance security.
-
-5. **Blacklist Tokens**:
-   - Maintain a blacklist of invalidated tokens (e.g., after logout).
+# To update later:
+docker-compose down && docker-compose pull && docker-compose up -d
+```
+- `-t` → Tags the image with a name (`maainul/table-tech-backend`) and tag (`latest`).
+- `.` → Builds using the current directory (where your `Dockerfile` is).
 
 ---
 
-### **Final Notes**
+### **Step 3: Test Locally Before Pushing**
+```bash
+docker-compose up -d
+```
+- Verify that your app and MongoDB start correctly.
 
-- **Access tokens** are used for short-term authentication and authorization.
-- **Refresh tokens** are used for long-term session management.
+---
+
+### **Step 4: Log in to Docker Hub**
+```bash
+docker login
+```
+- Enter your **Docker Hub username** and **password** when prompted.
+
+---
+
+### **Step 5: Push the Image to Docker Hub**
+```bash
+docker push maainul/table-tech-backend:latest
+```
+- This uploads your image to Docker Hub under your account (`maainul`).
+
+---
+
+### **Step 6: Share the `docker-compose.yml` with Your Team**
+Your team can now use the image directly from Docker Hub:
+```yaml
+version: '3.8'
+
+services:
+  app:
+    image: maainul/table-tech-backend:latest  # Pulls from Docker Hub
+    ports:
+      - "8080:8080"
+    environment:
+      - MONGO_URL=mongodb://mongo:27017/rmsdb
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:6.0
+    container_name: my-mongo-db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
+```
+
+---
+
+### **Step 7: Your Team Can Now Run It**
+They just need to run:
+```bash
+docker-compose up -d
+```
+- This will:
+  1. Pull `maainul/table-tech-backend:latest` from Docker Hub.
+  2. Start MongoDB.
+  3. Run your Node.js app.
+
+---
+
+### **Optional Improvements (If Needed)**
+1. **Use Version Tags (Recommended)**  
+   Instead of `latest`, use semantic versioning (e.g., `v1.0.0`):
+   ```bash
+   docker build -t maainul/table-tech-backend:v1.0.0 .
+   docker push maainul/table-tech-backend:v1.0.0
+   ```
+   - Helps avoid breaking changes when `latest` updates.
+
+2. **Add a `.dockerignore` File**  
+   Prevents unnecessary files (like `node_modules`) from being copied:
+   ```
+   node_modules
+   .git
+   .env
+   ```
+
+3. **Add Health Checks (Optional)**  
+   In `docker-compose.yml`, you can add:
+   ```yaml
+   healthcheck:
+     test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+     interval: 30s
+     timeout: 10s
+     retries: 3
+   ```
+
+---
+
+## Docker Run Without Codebase: Pull and RUN
+```bash
+docker pull maainul/table-tech-backend:latest && docker run maainul/table-tech-backend:latest
+docker run maainul/table-tech-backend:latest
+```
+
+## Run in MongoDb Compass :
+
+1. Windows (Services):
+
+```Press Win + R → services.msc → Stop "MongoDB Server"```
+
+2. Paste this in the connection String :
+```mongodb://localhost:27017/rmsdb```

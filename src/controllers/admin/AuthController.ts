@@ -9,12 +9,16 @@ import sendResponse from '../../utils/sendResponse';
 import validateParmas from '../../utils/validateParams';
 import validateObjectId from '../../utils/isValidObjectId';
 import userValidation from "../../utils/validateUser"
-import UpdateUserRequestDto from '../../dto/user/UpdateUserRequest.dto';
+import CreateCustomerRequestDto from '../../dto/user/CreateCustomerRequest.dto';
+import OTPRepository from '../../repositories/OTPRepository';
+import OtpService from '../../services/OtpService';
 
 
 const userRepository = new UserRepository()
 const userService = new UserService(userRepository)
 
+const otpRepository = new OTPRepository()
+const otpServcie = new OtpService(otpRepository,userRepository)
 
 
 class UserController {
@@ -44,6 +48,26 @@ class UserController {
         const newUser = await userService.createUser(userData)
         sendResponse(res, 201, "User Created Successfully", newUser)
     })
+
+    // Create Customer With OTP
+    createCustomer = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+        console.log("UserController: register called.");
+
+        const userData: CreateCustomerRequestDto = req.body
+        console.log("UserController: createUser Request Body :", userData);
+
+        // Perform validation
+        userValidation.validateCustomerData(userData)
+
+        // If validation passes, proceed to register the user
+        const newUser = await userService.createCustomer(userData)
+
+        // Send OTP via SMS or Email
+        await otpServcie.sendOtpToUser(newUser.mobileNumber, newUser.otp)
+
+        sendResponse(res, 201, "User Created Successfully", newUser)
+    })
+
 
     getUserById = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
         console.log("AdminUserController: getUserById called.");
