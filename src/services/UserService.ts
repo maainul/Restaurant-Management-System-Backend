@@ -54,7 +54,7 @@ class UserService implements IUserService {
     return await this.userRepository.findByUserName(userName);
   }
 
-  async login(loginRequestDto: LoginRequestDto): Promise<{user: UserResponseDto;accessToken: string;refreshToken: string | null;}> {
+  async login(loginRequestDto: LoginRequestDto): Promise<{ user: UserResponseDto; accessToken: string; refreshToken: string | null; }> {
     const user = await this.userRepository.findByEmail(loginRequestDto.email);
     if (!user) {
       throw new ValidationError(
@@ -127,6 +127,7 @@ class UserService implements IUserService {
     return users.map(toUserDTO);
   }
 
+
   async getUserById(id: string): Promise<UserResponseDto | null> {
     console.log("UserService: getUserById called.");
     const user = await this.userRepository.findById(id);
@@ -143,12 +144,32 @@ class UserService implements IUserService {
     console.log("UserService: createUser called.");
     console.log("UserService: Request Data:", data);
 
-    const existingUser = await this.userRepository.findByEmail(data.email);
-    if (existingUser) {
-      throw new ValidationError(
-        [{ field: " email", message: "User with this email already exists" }],
-        409
-      );
+    const errors = [];
+
+    if (data.username) {
+      const existingUserName = await this.userRepository.findByUserName(data.username);
+      if (existingUserName) {
+        errors.push({ field: "username", message: "User with this username already exists" })
+      }
+    }
+
+    if (data.email) {
+      const existingUser = await this.userRepository.findByEmail(data.email);
+      if (existingUser) {
+        errors.push({ field: "email", message: "User with this email already exists" });
+      }
+    }
+
+    if (data.mobileNumber) {
+      const existingUserMobileNumber = await this.checkUserByMobileNumber(data.mobileNumber);
+      if (existingUserMobileNumber) {
+        errors.push({ field: "mobileNumber", message: "User with this mobile number already exists" });
+      }
+    }
+
+    // If there are any errors collected, throw once
+    if (errors.length > 0) {
+      throw new ValidationError(errors, 409);
     }
 
     if (data.password && data.password.trim() !== "") {
@@ -169,7 +190,6 @@ class UserService implements IUserService {
    * @throws ConflictError if name change conflicts with existing user
    */
   async updateUser(id: string, data: UpdateUserRequestDto): Promise<UserResponseDto | null> {
-    console.log("UserService: updateUser called.");
 
     // validate ID format
     validateObjectId(id);
@@ -181,8 +201,8 @@ class UserService implements IUserService {
     }
 
     let hasChanges = false;
-
-    // Handle nameupdate
+ 
+    // Handle name update
     if (data.email && data.email !== currentData.email) {
       const userExists: IUser | null = await this.checkUserByEmail(data.email);
       if (userExists && userExists._id?.toString() !== id) {
@@ -197,6 +217,35 @@ class UserService implements IUserService {
       hasChanges = true;
     }
 
+    if (data.password && data.password !== currentData.password) {
+      currentData.password = data.password.trim() && (await bcrypt.hash(data.password, 10));
+      hasChanges = true;
+    }
+
+    if (data.name && data.name !== currentData.name) {
+      currentData.name = data.name;
+      hasChanges = true;
+    }
+
+    if (data.status && data.status !== currentData.status) {
+      currentData.status = data.status;
+      hasChanges = true;
+    }
+
+    if (data.address && data.address !== currentData.address) {
+      currentData.address = data.address;
+      hasChanges = true;
+    }
+
+    if (data.mobileNumber && data.mobileNumber !== currentData.mobileNumber) {
+      const userExists: IUser | null = await this.checkUserByMobileNumber(data.mobileNumber);
+      if (userExists && userExists._id?.toString() !== id) {
+        throw new ConflictError("User with this mobile already exists");
+      }
+      currentData.mobileNumber = data.mobileNumber;
+      hasChanges = true;
+    }
+
     if (data.username && data.username !== currentData.username) {
       const userExists: IUser | null = await this.checkUserByUserName(data.username);
       if (userExists && userExists._id?.toString() !== id) {
@@ -205,12 +254,12 @@ class UserService implements IUserService {
       currentData.username = data.username;
       hasChanges = true;
     }
-
     if (!hasChanges) {
       console.log("UserService: No Changes detected, skipping update");
       return toUserDTO(currentData);
     }
 
+    // User Data
     const user: IUser | null = await this.userRepository.update(id, currentData);
     if (!user) {
       throw new NotFoundError("User Not Found")
@@ -292,8 +341,6 @@ class UserService implements IUserService {
     const user = await this.userRepository.create(toCustomer(data));
     return toUserDTO(user);
   }
-
-
 
 }
 

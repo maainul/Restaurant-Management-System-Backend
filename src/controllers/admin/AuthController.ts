@@ -12,6 +12,7 @@ import userValidation from "../../utils/validateUser"
 import CreateCustomerRequestDto from '../../dto/user/CreateCustomerRequest.dto';
 import OTPRepository from '../../repositories/OTPRepository';
 import OtpService from '../../services/OtpService';
+import UpdateUserRequestDto from '../../dto/user/UpdateUserRequest.dto';
 
 
 const userRepository = new UserRepository()
@@ -88,6 +89,23 @@ class UserController {
         }
         const newAccessToken = await userService.refreshAccessToken(refreshToken)
         sendResponse(res, 200, "Access token refreshed", { accessToken: newAccessToken })
+    })
+
+    passwordUpdate = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+        console.log("AdminUserController: password Update called.");
+
+        validateParmas(req.params, ["id"])
+        const id: string = req.params.id
+
+        // Get the updated data from the request body
+        const userData: Partial<UpdateUserRequestDto> = req.body
+        console.log("AdminUserController: form data : ", userData)
+        
+        // Call the service to update the category
+        const updatedUser = await userService.updateUser(id, userData)
+
+      
+        sendResponse(res, 201, "User fetch by id Successfully", updatedUser)
     })
 }
 

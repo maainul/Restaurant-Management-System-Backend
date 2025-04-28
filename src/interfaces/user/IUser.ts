@@ -4,6 +4,9 @@ interface IUser {
   _id: Types.ObjectId;
   username: string;
   email: string;
+  name: string;
+  status: string;
+  address: string;
   otp:string;
   otpExpiryTime:Date;
   mobileNumber: string;

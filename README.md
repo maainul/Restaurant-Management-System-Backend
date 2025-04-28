@@ -34,10 +34,8 @@ docker-compose up --build
 ```
 
 
-# Dockerize
----
+## Dockerfile
 
-### **Step 1: Keep Your Dockerfile (No Changes)**
 ```dockerfile
 FROM node:20.9.0-alpine
 
@@ -62,7 +60,12 @@ EXPOSE 8080
 CMD ["npm", "start"]
 ```
 
----
+### Key Changes:
+1. First installs all dependencies (including devDependencies needed for building)
+2. Copies all source files
+3. Runs the build command (`npm run build`)
+4. Prunes devDependencies to keep the image smaller
+5. Then starts the application
 
 ### **Step 2: Build the Docker Image**
 ```bash
@@ -124,7 +127,11 @@ volumes:
   mongo-data:
 ```
 
----
+### Important Notes:
+1. Replace `npm run build` with your actual build command if it's different
+2. Adjust `./dist` in the multi-stage build to match your actual build output directory
+3. If you're using TypeScript, you might need to add `RUN npm install -g typescript` in the build stage
+4. Make sure your `package.json` has the correct `build` script defined
 
 ### **Step 7: Your Team Can Now Run It**
 They just need to run:

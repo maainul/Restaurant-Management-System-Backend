@@ -25,6 +25,19 @@ export const toUser = (data: CreateUserRequestDto): Partial<IUser> => {
     user.password = data.password;
   }
 
+  if (data.name !== undefined) {
+    user.name = data.name;
+  }
+
+  if (data.address !== undefined) {
+    user.address = data.address;
+  }
+  
+  if (data.status !== undefined) {
+    user.status = data.status;
+  }
+
+
   return user;
 };
 
@@ -33,6 +46,18 @@ export const toCustomer = (data: CreateCustomerRequestDto): Partial<IUser> => {
 
   if (data.mobileNumber !== undefined) {
     user.mobileNumber = data.mobileNumber;
+  }
+
+  if (data.name !== undefined) {
+    user.name = data.name;
+  }
+
+  if (data.address !== undefined) {
+    user.address = data.address;
+  }
+
+  if (data.status !== undefined) {
+    user.status = data.status;
   }
 
   if (data.password !== undefined) {
@@ -52,7 +77,11 @@ export const toUserDTO = (user: IUser): UserResponseDto => {
     _id: user._id?.toString() || "",
     username: user.username,
     email: user.email || "",
+    name : user.name || "",
+    status : user.status || "",
+    address:user.address || "",
     mobileNumber: user.mobileNumber || "",
+    password:user.password,
     otp: user.otp || "",
     isVerified:user.isVerified,
     otpExpiryTime: user.otpExpiryTime,

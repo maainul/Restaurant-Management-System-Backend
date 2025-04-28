@@ -5,6 +5,12 @@ interface UpdateUserRequestDto {
   password?: string;
   role?: string; // "user" | "admin" | "waiter" | "kitchenStaff"
   refreshToken?: string;
+
+  name?: string;
+  status?: string;
+  address?: string;
+
+  mobileNumber?: string;
 }
 
 export default UpdateUserRequestDto;
