@@ -11,7 +11,6 @@ interface IUser {
   otpExpiryTime:Date;
   mobileNumber: string;
   isVerified:Boolean;
-
   isEmailVerified:Boolean;
   verificationCode:string;
   verificationExpiryTime:Date;
@@ -21,6 +20,8 @@ interface IUser {
   refreshToken?: string;
   createdAt: Date;
   updatedAt: Date;
+  
+  tokenVersion: number,
 }
 
 export default IUser

@@ -11,7 +11,7 @@ export interface AuthenticatedRequest extends Request {
 const isAdmin = (req: Request, res: Response, next: NextFunction)=>{
     const request = req as AuthenticatedRequest
 
-    if (request.user && request.user.role === "admin") {
+    if (request.user && request.user.role === "admin" ) {
         next()
     } else {
         sendResponse(res, 403, "Forbidden: Admin only access");

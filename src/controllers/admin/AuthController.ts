@@ -22,11 +22,12 @@ const otpRepository = new OTPRepository()
 const otpServcie = new OtpService(otpRepository,userRepository)
 
 
-class UserController {
+class AuthController {
     login = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-        console.log("BaseUserController: login called.");
+        console.log("AuthController: login called.");
         const { email, password } = req.body;
-        console.log("BaseUserController: Request Body:", { email, password });
+        
+        console.log("AuthController: Request Body:", { email, password });
         // Perform validation
         userValidation.validateLoginData(email, password)
         // If validation passes, proceed to log in the user
@@ -40,9 +41,9 @@ class UserController {
     })
 
     register = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-        console.log("UserController: register called.");
+        console.log("AuthController: register called.");
         const userData: CreateUserRequestDto = req.body
-        console.log("AdminUserController: createUser Request Body :", userData);
+        console.log("AuthController: createUser Request Body :", userData);
         // Perform validation
         userValidation.validateRegistrationData(userData)
         // If validation passes, proceed to register the user
@@ -52,10 +53,10 @@ class UserController {
 
     // Create Customer With OTP
     createCustomer = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-        console.log("UserController: register called.");
+        console.log("AuthController: register called.");
 
         const userData: CreateCustomerRequestDto = req.body
-        console.log("UserController: createUser Request Body :", userData);
+        console.log("AuthController: createUser Request Body :", userData);
 
         // Perform validation
         userValidation.validateCustomerData(userData)
@@ -71,7 +72,7 @@ class UserController {
 
 
     getUserById = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-        console.log("AdminUserController: getUserById called.");
+        console.log("AuthController: getUserById called.");
         validateParmas(req.params, ["id"])
         const id: string = req.params.id
         validateObjectId(id)
@@ -92,21 +93,20 @@ class UserController {
     })
 
     passwordUpdate = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-        console.log("AdminUserController: password Update called.");
+        console.log("AuthController: password Update called.");
 
         validateParmas(req.params, ["id"])
         const id: string = req.params.id
 
         // Get the updated data from the request body
         const userData: Partial<UpdateUserRequestDto> = req.body
-        console.log("AdminUserController: form data : ", userData)
+        console.log("AuthController: form data : ", userData)
         
         // Call the service to update the category
         const updatedUser = await userService.updateUser(id, userData)
 
-      
         sendResponse(res, 201, "User fetch by id Successfully", updatedUser)
     })
 }
 
-export default UserController
+export default AuthController

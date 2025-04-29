@@ -16,6 +16,9 @@ import validateObjectId from "../utils/isValidObjectId";
 import IUser from "../interfaces/user/IUser";
 import ConflictError from "../errors/ConflictError";
 import CreateCustomerRequestDto from "../dto/user/CreateCustomerRequest.dto";
+import { createAccessToken, createRefreshToken } from "../utils/tokenService";
+
+// import {createAccessToken,createRefreshToken} from "../utils/tokenService"
 
 
 class UserService implements IUserService {
@@ -55,59 +58,32 @@ class UserService implements IUserService {
   }
 
   async login(loginRequestDto: LoginRequestDto): Promise<{ user: UserResponseDto; accessToken: string; refreshToken: string | null; }> {
-    const user = await this.userRepository.findByEmail(loginRequestDto.email);
+    const user: IUser | null = await this.userRepository.findByEmail(loginRequestDto.email);
     if (!user) {
-      throw new ValidationError(
-        [{ field: "email", message: "User not found" }],
-        404
-      );
-    }
-    if (user.password) {
-      const isPasswordValid = await bcrypt.compare(
-        loginRequestDto.password,
-        user.password.trim()
-      );
-      if (!isPasswordValid) {
-        throw new ValidationError(
-          [{ field: "password", message: "Invalid password" }],
-          401
-        );
-      }
+      throw new ValidationError([{ field: "email", message: "User not found" }], 404);
     }
 
-    // Validate environment variables
-    const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
-    const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
-    if (!ACCESS_TOKEN_SECRET || !REFRESH_TOKEN_SECRET) {
-      throw new Error("Required environment variables are not defined");
+    // Hash Password and Compare Password
+    const hashedPassword = user.password?.trim();
+    if (hashedPassword && !(await bcrypt.compare(loginRequestDto.password, hashedPassword))) {
+      throw new ValidationError([{ field: "password", message: "Invalid password" }], 401);
     }
 
-    const accessToken = jwt.sign(
-      {
-        userId: user._id,
-        email: user.email,
-        username: user.username,
-        role: user.role,
-      },
-      ACCESS_TOKEN_SECRET,
-      { expiresIn: "59m" }
-    );
+    // Increment tokenVersion and persist it
+    user.tokenVersion += 1;
+    await this.userRepository.update(user._id.toString(), { tokenVersion: user.tokenVersion });
 
-    const refreshToken = jwt.sign(
-      {
-        userId: user._id,
-        email: user.email,
-        username: user.username,
-        role: user.role,
-      },
-      REFRESH_TOKEN_SECRET,
-      { expiresIn: "7d" }
-    );
+    const { _id, email, username, role, tokenVersion } = user;
 
-    // Save the refresh token in the database
+    // Create Access Token and Refresh Token
+    const accessToken = createAccessToken(_id.toString(), email, username, role, tokenVersion)
+    const refreshToken = createRefreshToken(_id.toString(), email, username, role, tokenVersion)
+
     await this.userRepository.update(user._id.toString(), { refreshToken });
+
     const userDTO = toUserDTO(user);
     delete userDTO.password;
+
     return { user: userDTO, accessToken, refreshToken };
   }
 
@@ -201,7 +177,7 @@ class UserService implements IUserService {
     }
 
     let hasChanges = false;
- 
+
     // Handle name update
     if (data.email && data.email !== currentData.email) {
       const userExists: IUser | null = await this.checkUserByEmail(data.email);
@@ -286,38 +262,46 @@ class UserService implements IUserService {
     return toUserDTO(user);
   }
 
-  async refreshAccessToken(refreshToken: string): Promise<string> {
+  
+  async refreshAccessToken(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
     const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
     const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
 
     if (!ACCESS_TOKEN_SECRET || !REFRESH_TOKEN_SECRET) {
-      throw new Error("Required environment variables are not defined");
+      throw new Error("Token secrets are not defined in environment variables.");
     }
 
-    const decoded = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET) as {
-      userId: string;
-    };
+    // Step 1: Decode and validate refresh token
+    let decoded;
+    try {
+      decoded = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET) as { userId: string; tokenVersion: number };
+    } catch (err) {
+      throw new ValidationError([{ field: "refreshToken", message: "Invalid or expired refresh token" }], 403);
+    }
 
+    // Step 2: Find user and validate token
     const user = await this.userRepository.findById(decoded.userId);
     if (!user || user.refreshToken !== refreshToken) {
-      throw new ValidationError(
-        [{ field: "refreshToken", message: "Invalid refresh token" }],
-        403
-      );
+      throw new ValidationError([{ field: "refreshToken", message: "Invalid refresh token" }], 403);
     }
 
-    const accessToken = jwt.sign(
-      {
-        userId: user._id,
-        email: user.email,
-        username: user.username,
-        role: user.role,
-      },
-      ACCESS_TOKEN_SECRET,
-      { expiresIn: "59m" }
-    );
+    const { _id, email, username, role, tokenVersion } = user;
 
-    return accessToken;
+    // Step 3: Increment token version (optional)
+    const newTokenVersion = (tokenVersion || 0) + 1;
+    user.tokenVersion = newTokenVersion;
+
+    // Step 4: Generate new tokens
+    const newAccessToken = createAccessToken(_id.toString(), email, username, role, tokenVersion)
+    const newRefreshToken = createRefreshToken(_id.toString(), email, username, role, tokenVersion)
+
+    // Step 5: Save new refresh token and tokenVersion in DB
+    await this.userRepository.update(user._id.toString(), {
+      refreshToken: newRefreshToken,
+      tokenVersion: newTokenVersion
+    });
+
+    return { accessToken: newAccessToken, refreshToken: newRefreshToken }
   }
 
   // Create Customer With OTP

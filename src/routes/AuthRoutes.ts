@@ -16,7 +16,6 @@ router.post("/register",authenticate, authController.register);
 // Update User info and Passwords
 router.put("/user/:id",authenticate, authController.passwordUpdate);
 
-
 // Get User Info Based on User ID
 router.get("/profile/:id", authenticate, authController.getUserById);
 

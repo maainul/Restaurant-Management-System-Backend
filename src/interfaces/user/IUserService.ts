@@ -10,7 +10,7 @@ interface IUserService {
     getUserByMobileNumber(mobileNUmber: string): Promise<UserResponseDto | null>;
     updateUser(userId: string, updateUserDto: CreateUserRequestDto): Promise<UserResponseDto | null>;
     deleteUser(userId: string): Promise<boolean>;
-    refreshAccessToken(refreshToken: string): Promise<string>;
+    refreshAccessToken(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }>;
 
 }
 

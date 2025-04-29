@@ -21,12 +21,14 @@ const PORT = process.env.PORT || 8080;
 connectDB();
 
 // Middleware
+
 app.use(
     cors({
-      origin: ["http://localhost:5173","http://localhost:5174","http://localhost:5175"],
+      origin: ["http://localhost:5173","http://localhost:5174","http://localhost:5175", "https://pos.netlify.app"],
       credentials: true,
     })
 );
+
 app.use(express.json());
 app.use("/uploads", express.static("uploads")); // Serve uploaded images
 

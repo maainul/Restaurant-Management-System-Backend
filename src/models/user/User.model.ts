@@ -13,6 +13,7 @@ const UserSchema = new Schema<IUser>({
     mobileNumber: { type: String },
     password: { type: String },
     refreshToken: { type: String },
+    tokenVersion: { type: Number, default: 0 },
     role: { type: String, enum: ["admin", "customer", "waiter", "kitchenStaff"], default: "customer" },
 }, { timestamps: true });
 
