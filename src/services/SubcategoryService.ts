@@ -13,6 +13,9 @@ import ICategory from "../interfaces/category/ICategory";
 import ConflictError from './../errors/ConflictError';
 import NotFoundError from './../errors/NotFoundError';
 import { Types } from "mongoose";
+import SubcategoryListResponseDto from "../dto/subcategory/SubcategoryListResponse.dto copy";
+import { paginateAndSearch } from "../utils/paginateAndSearch";
+import { Request } from "express";
 
 class SubcategoryService implements ISubcategoryService {
 
@@ -70,11 +73,17 @@ class SubcategoryService implements ISubcategoryService {
      * Retrieves all subcategories with their associated category data
      * @returns Promise resolving to array of subcategory responses
      */
-    async getSubcategories(): Promise<SubcategoryResponseDto[]> {
+    async getSubcategories(req:Request): Promise<SubcategoryListResponseDto> {
         console.log("SubCategoryService: getSubcategories called");
-        const subcategories: ISubcategoryWithCategory[] = await this.subcategoryRepository.findAll()
-        console.log("SubCategoryService: getSubcategories Data", subcategories);
-        return subcategories.map(toSubcategoryWithCategoryResponse)
+
+        const data:SubcategoryListResponseDto = await paginateAndSearch<ISubcategory>({
+            repository:this.subcategoryRepository,
+            query:req.query,
+            searchableFields:["name","description"],
+            toResponseDto:toSubcategoryResponse
+        })
+
+        return data
     }
 
     /**

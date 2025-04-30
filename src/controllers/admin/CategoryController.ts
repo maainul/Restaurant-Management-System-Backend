@@ -49,8 +49,8 @@ class CategoryController {
 
     getAllCategory = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
         console.log("CategoryController: getAllCategory called")
-        const Categorys = await categoryService.getCategories()
-        sendResponse(res, 200, "All Category Fetch Successfully", Categorys)
+        const categories = await categoryService.getCategories(req)
+        sendResponse(res, 200, "All Category Fetch Successfully", categories)
     })
 
     getCategoryById = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {

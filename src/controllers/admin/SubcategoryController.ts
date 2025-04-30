@@ -65,8 +65,8 @@ class SubCategoryController {
 
     getAllSubCategory = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
         console.log("SubCategoryController: getAllSubCategory called")
-        const SubCategorys = await subCategoryService.getSubcategories()
-        sendResponse(res, 201, "All SubCategory Fetch Successfully", SubCategorys)
+        const subCategories = await subCategoryService.getSubcategories(req)
+        sendResponse(res, 201, "All SubCategory Fetch Successfully", subCategories)
     })
 
     getSubCategoryById = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {

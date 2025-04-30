@@ -7,7 +7,7 @@ export interface ISubcategoryRepository {
     delete(id: string): Promise<boolean>;
     findByCategory(categoryId: string): Promise<ISubcategory[]>;
     findByName(name: string): Promise<ISubcategory | null>;
-
+    countDocuments(filter: any): Promise<number>;
     findById(id: string): Promise<ISubcategoryWithCategory | null>;
     findAll(): Promise<ISubcategoryWithCategory[]>;
 }

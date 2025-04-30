@@ -22,9 +22,10 @@ class CategoryRepository implements ICategoryRepository {
         return result;
     }
 
-    async findAll(): Promise<ICategory[]> {
+    async findAll(filter: any = {}, options: { sort?: any, skip: number, limit?: number }): Promise<ICategory[]> {
         console.log("CategoryRepository:findAll called")
-        return await Category.find()
+        const { sort = { createdAt: -1 }, skip = 0, limit = 10 } = options
+        return await Category.find(filter).sort(sort).skip(skip).limit(limit)
     }
     async update(id: string, category: Partial<ICategory>): Promise<ICategory | null> {
         console.log("CategoryRepository:update called")
@@ -36,6 +37,10 @@ class CategoryRepository implements ICategoryRepository {
         const result = await Category.findByIdAndDelete(id)
         return !!result
     }
+
+    async countDocuments(filter: any = {}): Promise<number> {
+        return await Category.countDocuments(filter);
+      }
 }
 
 export default CategoryRepository

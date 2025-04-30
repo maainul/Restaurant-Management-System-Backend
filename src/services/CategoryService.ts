@@ -1,15 +1,25 @@
+import { Request } from "express";
+
 import { toCategory, toCategoryResponse } from "../converters/category/CategoryConverter";
+
 import { CategoryResponseDto } from "../dto/category/CategoryResponse.dto";
 import { CreateCategoryRequestDto } from "../dto/category/CreateCategoryRequest.dto";
 import { UpdateCategoryRequestDto } from "../dto/category/UpdateCategoryRequest.dto";
+
 import ConflictError from "../errors/ConflictError";
 import NotFoundError from "../errors/NotFoundError";
+import { ValidationError } from './../errors/errors';
+
 import ICategory from "../interfaces/category/ICategory";
+
 import { ICategoryRepository } from "../interfaces/category/ICategoryRepository";
 import { ICategoryService } from "../interfaces/category/ICategoryService";
+
 import validateObjectId from "../utils/isValidObjectId";
 import validateCategoryData from "../utils/validateCategoryData";
-import { ValidationError } from './../errors/errors';
+import { CategoryListResponse } from "../dto/category/CategoryListResponse .dto";
+import { paginateAndSearch } from "../utils/paginateAndSearch";
+
 
 class CategoryService implements ICategoryService {
 
@@ -33,16 +43,19 @@ class CategoryService implements ICategoryService {
      * @returns Promise resolving to array of category responses
      * @throws NotFoundError if no categories exist
      */
-    async getCategories(): Promise<CategoryResponseDto[]> {
+    async getCategories(req: Request): Promise<CategoryListResponse> {
         console.log("CategoryService: getAllCategories called");
-        const categories: ICategory[] = await this.categoryRepository.findAll()
-        if (categories.length === 0) {
-            throw new NotFoundError("No categories found");
-        }
-        console.log("CategoryService: getAllCategories data : ", categories);
 
-        return categories.map(toCategoryResponse)
+        // Call the paginateAndSearch function
+        const data: CategoryListResponse = await paginateAndSearch<ICategory>({
+            repository: this.categoryRepository,
+            query: req.query,
+            searchableFields: ["name", "description"],
+            toResponseDto: toCategoryResponse,
+        });
+        return data
     }
+
 
     /**
      * Creates a new category after validating input and checking for duplicates

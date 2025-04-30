@@ -103,6 +103,10 @@ class SubcategoryRepository implements ISubcategoryRepository {
         const result = await Subcategory.findByIdAndDelete(id)
         return !!result
     }
+
+    async countDocuments(filter: any = {}): Promise<number> {
+        return await Subcategory.countDocuments(filter);
+      }
 }
 
 export default SubcategoryRepository
