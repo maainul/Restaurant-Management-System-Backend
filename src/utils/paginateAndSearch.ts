@@ -26,13 +26,7 @@ export async function paginateAndSearch<T>({
   searchableFields,
   toResponseDto,
 }: PaginateOptions<T>) {
-  const {
-    search = "",
-    sort = "latest",
-    page = "1",
-    limit = "10",
-    status,
-  } = query;
+  const { search = "",sort = "latest",page = "1",limit = "10",status} = query;
 
   const pageNumber = parseInt(page);
   const limitNumber = parseInt(limit);
