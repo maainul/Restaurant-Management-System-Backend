@@ -1,3 +1,5 @@
+import { Request } from "express";
+
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 
@@ -17,6 +19,8 @@ import IUser from "../interfaces/user/IUser";
 import ConflictError from "../errors/ConflictError";
 import CreateCustomerRequestDto from "../dto/user/CreateCustomerRequest.dto";
 import { createAccessToken, createRefreshToken } from "../utils/tokenService";
+import { paginateAndSearch } from "../utils/paginateAndSearch";
+import UserListResponse from "../dto/user/UserListResponse.dto";
 
 // import {createAccessToken,createRefreshToken} from "../utils/tokenService"
 
@@ -92,15 +96,16 @@ class UserService implements IUserService {
    * @returns Promise resolving to array of category responses
    * @throws NotFoundError if no users exist
    */
-  async getUsers(): Promise<UserResponseDto[]> {
+  async getUsers(req: Request): Promise<UserListResponse> {
     console.log("UserService: getAllUsers called.");
-    const users = await this.userRepository.findAll();
-    if (users.length === 0) {
-      throw new NotFoundError("Users Not Found");
-    }
-    console.log("UserService: getAllUsers data :.", users);
+    const data: UserListResponse = await paginateAndSearch<IUser>({
+      repository: this.userRepository,
+      query: req.query,
+      searchableFields: ["name", "email", "mobileNumber", "role"],
+      toResponseDto: toUserDTO,
+    });
 
-    return users.map(toUserDTO);
+    return data;
   }
 
 
@@ -262,7 +267,7 @@ class UserService implements IUserService {
     return toUserDTO(user);
   }
 
-  
+
   async refreshAccessToken(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
     const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
     const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;

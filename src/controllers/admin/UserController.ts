@@ -36,7 +36,7 @@ class UserController {
 
     getUsers = asyncHandler(async(req:Request,res:Response,next:NextFunction)=>{
         console.log("UserController:getUsers called")
-        const users = await userService.getUsers()
+        const users = await userService.getUsers(req)
         sendResponse(res,200,"User Fetch Successfully",users)
     })
 

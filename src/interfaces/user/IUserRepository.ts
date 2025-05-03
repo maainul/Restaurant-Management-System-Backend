@@ -7,9 +7,10 @@ interface IUserRepository {
     findByMobileNumber(email: string): Promise<IUser | null>;
 
     findByUserName(username: string): Promise<IUser | null>;
-    findAll(): Promise<IUser[]>;
+    findAll(filter: any, options: { sort?: any, skip: number, limit?: number }): Promise<IUser[]>;
     update(id: string, user: Partial<IUser>): Promise<IUser | null>;
     delete(id: string): Promise<boolean>;
+    countDocuments(filter: any): Promise<number>;
 }
 
 export default IUserRepository

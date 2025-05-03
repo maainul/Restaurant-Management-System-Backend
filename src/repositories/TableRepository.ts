@@ -22,7 +22,7 @@ class TableRepository implements ITableRepository {
         return result
     }
     
-    async findAll(): Promise<ITable[]> {
+    async findAll(filter: any = {}, options: { sort?: any, skip: number, limit?: number }): Promise<ITable[]> {
         console.log("TableRepository:create called")
         return await Table.find()
     }
@@ -37,6 +37,9 @@ class TableRepository implements ITableRepository {
         const result = await Table.findByIdAndDelete(id)
         return !!result
     }
+    async countDocuments(filter: any = {}): Promise<number> {
+        return await Table.countDocuments(filter);
+      }
 
 }
 export default TableRepository

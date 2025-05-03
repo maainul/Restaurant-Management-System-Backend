@@ -55,7 +55,7 @@ class TableController {
 
     getAllTable = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
         console.log("TableController: getAllTable called")
-        const Tables = await tableService.getTables()
+        const Tables = await tableService.getTables(req)
         sendResponse(res, 201, "All Table Fetch Successfully", Tables)
     })
 

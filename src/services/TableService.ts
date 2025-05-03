@@ -1,4 +1,5 @@
 
+import { Request } from 'express';
 import { toTable, toTableResponse } from '../converters/table/TableConverter';
 import AssignTableRequestDto from '../dto/table/AssignTableRequest.dto';
 import CreateTableRequestDto from '../dto/table/CreateTableRequest.dto';
@@ -9,8 +10,10 @@ import NotFoundError from '../errors/NotFoundError';
 import ITable from '../interfaces/table/ITable';
 import ITableRepository from '../interfaces/table/ITableRepository';
 import validateObjectId from '../utils/isValidObjectId';
+import { paginateAndSearch } from '../utils/paginateAndSearch';
 import validateTableData from '../utils/validateTableData';
 import ITableService from './../interfaces/table/ITableService';
+import TableListResponse from '../dto/table/TableListResponse.dto';
 
 
 class TableService implements ITableService {
@@ -97,10 +100,16 @@ class TableService implements ITableService {
 
     }
 
-    async getTables(): Promise<ITable[]> {
+    async getTables(req: Request): Promise<TableListResponse> {
         console.log("TableService:assignTable called")
-        const tables = await this.tableRepository.findAll()
-        return tables.map(toTableResponse)
+        const data: TableListResponse = await paginateAndSearch<ITable>({
+            repository: this.tableRepository,
+            query: req.query,
+            searchableFields: ["tableNumber"],
+            toResponseDto: toTableResponse,
+        });
+
+        return data
     }
 
     async getTableById(tableId: string): Promise<ITable | null> {

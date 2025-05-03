@@ -29,9 +29,10 @@ class UserRepository implements IUserRepository {
     return await User.findOne({ username: username });
   }
 
-  async findAll(): Promise<IUser[]> {
+  async findAll(filter: any = {}, options: { sort?: any, skip: number, limit?: number }): Promise<IUser[]> {
     console.log("UserRepository:findAll called");
-    return await User.find();
+    const { sort = { createdAt: -1 }, skip = 0, limit = 10 } = options
+    return await User.find(filter).sort(sort).skip(skip).limit(limit);
   }
 
   async update(id: string, user: Partial<IUser>): Promise<IUser | null> {
@@ -44,6 +45,9 @@ class UserRepository implements IUserRepository {
     console.log("UserRepository:delete called");
     const result = await User.findByIdAndDelete(id);
     return !!result;
+  }
+  async countDocuments(filter: any = {}): Promise<number> {
+    return await User.countDocuments(filter);
   }
 }
 
