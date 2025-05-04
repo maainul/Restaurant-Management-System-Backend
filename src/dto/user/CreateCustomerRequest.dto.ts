@@ -7,6 +7,7 @@ interface CreateCustomerRequestDto {
     otp?: string;
     role: string;
     refreshToken: string;
+    otpExpiryTime?: Date;
 }
 
 export default CreateCustomerRequestDto

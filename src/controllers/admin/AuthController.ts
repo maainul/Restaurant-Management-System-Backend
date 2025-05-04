@@ -13,20 +13,22 @@ import CreateCustomerRequestDto from '../../dto/user/CreateCustomerRequest.dto';
 import OTPRepository from '../../repositories/OTPRepository';
 import OtpService from '../../services/OtpService';
 import UpdateUserRequestDto from '../../dto/user/UpdateUserRequest.dto';
+import TwilioSmsService from '../../services/TwilioSmsService';
+import { generateOtpWithExpiry } from '../../utils/generateOtpWithExpiry';
 
 
 const userRepository = new UserRepository()
 const userService = new UserService(userRepository)
-
 const otpRepository = new OTPRepository()
-const otpServcie = new OtpService(otpRepository,userRepository)
+const smsService = new TwilioSmsService()
+const otpServcie = new OtpService(otpRepository, userRepository, smsService)
 
 
 class AuthController {
     login = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
         console.log("AuthController: login called.");
         const { email, password } = req.body;
-        
+
         console.log("AuthController: Request Body:", { email, password });
         // Perform validation
         userValidation.validateLoginData(email, password)
@@ -61,11 +63,16 @@ class AuthController {
         // Perform validation
         userValidation.validateCustomerData(userData)
 
-        // If validation passes, proceed to register the user
-        const newUser = await userService.createCustomer(userData)
+        // 1. Generate OTP
+        const otpInfo = generateOtpWithExpiry()
+        const mobileNumberWithCountryCode = "+88" + userData.mobileNumber
+        // 2. Send OTP via SMS or Email
+        await otpServcie.sendOtpToUser(mobileNumberWithCountryCode, otpInfo.otp)
 
-        // Send OTP via SMS or Email
-        await otpServcie.sendOtpToUser(newUser.mobileNumber, newUser.otp)
+        // 3. Create Customer
+        userData.otp = otpInfo.otp
+        userData.otpExpiryTime = otpInfo.otpExpiryTime
+        const newUser = await userService.createCustomer(userData)
 
         sendResponse(res, 201, "User Created Successfully", newUser)
     })
@@ -101,7 +108,7 @@ class AuthController {
         // Get the updated data from the request body
         const userData: Partial<UpdateUserRequestDto> = req.body
         console.log("AuthController: form data : ", userData)
-        
+
         // Call the service to update the category
         const updatedUser = await userService.updateUser(id, userData)
 

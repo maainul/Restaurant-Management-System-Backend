@@ -12,13 +12,14 @@ import validateOtp from '../../utils/validateOtp';
 import OTPRepository from '../../repositories/OTPRepository';
 import OtpService from '../../services/OtpService';
 import { generateOtpWithExpiry } from '../../utils/generateOtpWithExpiry';
+import TwilioSmsService from '../../services/TwilioSmsService';
 
 
 const userRepository = new UserRepository()
 const otpRepository = new OTPRepository()
-
+const smsService = new TwilioSmsService()
 const userService = new UserService(userRepository)
-const otpService = new OtpService(otpRepository, userRepository)
+const otpService = new OtpService(otpRepository, userRepository, smsService)
 
 
 class OTPController {
@@ -83,7 +84,7 @@ class OTPController {
 
         const isOtpExpired = !user.otpExpiryTime || new Date(user.otpExpiryTime) < new Date();
         if (!user.otp || isOtpExpired) {
-            const {otp,otpExpiryTime} = generateOtpWithExpiry();
+            const { otp, otpExpiryTime } = generateOtpWithExpiry();
             // Mark user as verified (optional DB update)
             await otpService.updateUserOtp(mobileNumber, otp, otpExpiryTime);
 
@@ -101,7 +102,7 @@ class OTPController {
 
     verifyMail = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
         console.log("OTPController: verifyOtp called.");
-        const {email,verificationCode}= req.body
+        const { email, verificationCode } = req.body
         console.log("OTPController: verifyOtp Request Body :", email);
 
         // Fetch user by mobile number
@@ -126,7 +127,7 @@ class OTPController {
 
         // Verify Verification Code
         await otpService.updateUserVerificationCode(email, verificationCode, user.verificationExpiryTime);
-        
+
         // Mark user as verified (optional DB update)
         await otpService.markUserAsVerified(email);
 

@@ -313,7 +313,7 @@ class UserService implements IUserService {
   async createCustomer(data: CreateCustomerRequestDto): Promise<UserResponseDto> {
     console.log("UserService: createCustomer called.");
     console.log("UserService: Request Data:", data);
-
+    //  Check User Already Exists or not
     const existingUser = await this.userRepository.findByMobileNumber(data.mobileNumber);
     if (existingUser) {
       throw new ValidationError(
@@ -321,7 +321,7 @@ class UserService implements IUserService {
         403
       );
     }
-
+    //  Hash Password
     if (data.password && data.password.trim() !== "") {
       data.password =
         data.password.trim() && (await bcrypt.hash(data.password, 10));

@@ -5,15 +5,20 @@ import NotFoundError from "../errors/NotFoundError";
 import IUser from "../interfaces/user/IUser";
 import IOtpService from "../interfaces/user/IOtpService";
 import IOtpRepository from "../interfaces/user/IOtpRepository";
+import IMessagingService from "../interfaces/messagingService/IMessagingService";
+
 
 
 class OtpService implements IOtpService {
+
     private otpRepository: IOtpRepository;
     private userRepository: IUserRepository;
+    private messagingService: IMessagingService;
 
-    constructor(otpRepository: IOtpRepository, userRepository: IUserRepository) {
+    constructor(otpRepository: IOtpRepository, userRepository: IUserRepository, messagingService: IMessagingService) {
         this.otpRepository = otpRepository;
-        this.userRepository = userRepository
+        this.userRepository = userRepository;
+        this.messagingService = messagingService
     }
 
     async markUserAsVerified(mobileNumber: string): Promise<UserResponseDto | null> {
@@ -74,9 +79,12 @@ class OtpService implements IOtpService {
         return toUserDTO(updatedUser)
     }
 
-    async sendOtpToUser(mobileNumber: string, otp: string): Promise<UserResponseDto | null> {
-        console.log(`OTP sent to ${mobileNumber}: ${otp}`);
-        return null
+    async sendOtpToUser(to: string, otp: string): Promise<string> {
+        console.log(`Trying to send ${otp} OTP to this number : ${to}: `);
+        const message = `Your OTP is ${otp}. It expires in 5 minutes`
+        const sid = await this.messagingService.sendOtp(to, message)
+        console.log(`Success : Otp Send Successfully to this Number : ${to}: `);
+        return sid
     }
 }
 

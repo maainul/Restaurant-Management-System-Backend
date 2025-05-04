@@ -32,7 +32,7 @@ export const toUser = (data: CreateUserRequestDto): Partial<IUser> => {
   if (data.address !== undefined) {
     user.address = data.address;
   }
-  
+
   if (data.status !== undefined) {
     user.status = data.status;
   }
@@ -64,10 +64,17 @@ export const toCustomer = (data: CreateCustomerRequestDto): Partial<IUser> => {
     user.password = data.password;
   }
 
+
+  if (data.otp !== undefined) {
+    user.otp = data.otp;
+  }
+
+
+  if (data.otpExpiryTime !== undefined) {
+    user.otpExpiryTime = data.otpExpiryTime;
+  }
+
   user.role = "customer"
-  const { otp, otpExpiryTime } = generateOtpWithExpiry();
-  user.otp = otp
-  user.otpExpiryTime = otpExpiryTime
 
   return user;
 };
@@ -77,17 +84,17 @@ export const toUserDTO = (user: IUser): UserResponseDto => {
     _id: user._id?.toString() || "",
     username: user.username,
     email: user.email || "",
-    name : user.name || "",
-    status : user.status || "",
-    address:user.address || "",
+    name: user.name || "",
+    status: user.status || "",
+    address: user.address || "",
     mobileNumber: user.mobileNumber || "",
-    password:user.password,
+    password: user.password,
     otp: user.otp || "",
-    isVerified:user.isVerified,
-    otpExpiryTime: user.otpExpiryTime,
-    isEmailVerified:user.isEmailVerified,
-    verificationCode:user.verificationCode,
-    verificationExpiryTime:user.verificationExpiryTime,
+    isVerified: user.isVerified,
+    otpExpiryTime: user.otpExpiryTime || new Date(),
+    isEmailVerified: user.isEmailVerified,
+    verificationCode: user.verificationCode,
+    verificationExpiryTime: user.verificationExpiryTime,
     role: user.role,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,

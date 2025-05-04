@@ -5,7 +5,7 @@ interface IOtpService {
     updateUserVerificationCode(email: string, verificationCode: string, verificationExpiryTime: Date): Promise<UserResponseDto | null>;
     markUserAsVerified(mobileNumber: string): Promise<UserResponseDto | null>;
     markUserEmailAsVerified(email: string): Promise<UserResponseDto | null>;
-    sendOtpToUser(mobileNumber: string, otp: string): Promise<UserResponseDto | null>;
+    sendOtpToUser(mobileNumber: string, otp: string): Promise<string>;
 }
 
 export default IOtpService
